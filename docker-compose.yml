@@ -1,0 +1,81 @@
+version: '3.9'
+
+services:
+  # PostgreSQL 15 + PostGIS + TimescaleDB
+  db:
+    image: timescale/timescaledb-ha:pg15-latest
+    container_name: vri_timescaledb
+    environment:
+      POSTGRES_USER: vri_admin
+      POSTGRES_PASSWORD: vri_secure_pass_2026
+      POSTGRES_DB: vri_digital_twin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vri_admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache & Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: vri_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vri_backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://vri_admin:vri_secure_pass_2026@db:5432/vri_digital_twin
+      REDIS_URL: redis://redis:6379
+      DEBUG: "False"
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: vri_frontend
+    environment:
+      VITE_API_URL: http://backend:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: vri_network
