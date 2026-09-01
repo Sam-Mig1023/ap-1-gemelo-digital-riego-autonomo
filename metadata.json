@@ -1,0 +1,7 @@
+{
+  "name": "Closed-Loop Digital Twin for Autonomous VRI",
+  "description": "A True Closed-Loop Digital Twin for Autonomous Variable-Rate Irrigation: Fusing Soil Moisture, Canopy Temperature and Weather Radar with Reinforcement Learning",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
