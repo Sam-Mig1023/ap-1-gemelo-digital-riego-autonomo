@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme } from './contexts/ThemeContext';
 import { 
   INITIAL_FIELD, 
   INITIAL_ZONES, 
@@ -33,6 +34,7 @@ import { ArchitectureAndCodeViewer } from './components/ArchitectureAndCodeViewe
 import { ClosedLoopFeedbackModal } from './components/ClosedLoopFeedbackModal';
 
 export default function App() {
+  const { theme } = useTheme();
   const [field, setField] = useState<AgriculturalField>(INITIAL_FIELD);
   const [zones, setZones] = useState<ManagementZone[]>(INITIAL_ZONES);
   const [sensors, setSensors] = useState<SensorTelemetry[]>(INITIAL_SENSORS);
@@ -224,11 +226,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} flex flex-col font-sans`}>
       
       {/* Global Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl border border-emerald-400 text-xs font-semibold flex items-center gap-2 animate-bounce">
+        <div className={`fixed bottom-6 right-6 z-50 ${theme === 'dark' ? 'bg-emerald-600' : 'bg-emerald-500'} text-white px-4 py-3 rounded-xl shadow-2xl ${theme === 'dark' ? 'border-emerald-400' : 'border-emerald-300'} border text-xs font-semibold flex items-center gap-2 animate-bounce`}>
           <span>✓</span>
           <span>{toastMessage}</span>
         </div>
@@ -332,7 +334,7 @@ export default function App() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-4 px-6 text-center text-xs text-slate-400">
+      <footer className={`border-t ${theme === 'dark' ? 'border-slate-900 bg-slate-950 text-slate-400' : 'border-slate-200 bg-slate-100 text-slate-600'} py-4 px-6 text-center text-xs`}>
         <p>
           Closed-Loop Digital Twin for Autonomous Variable-Rate Irrigation (VRI) • Fusing Soil Moisture, Canopy IRT & Weather Radar with PPO RL
         </p>

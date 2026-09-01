@@ -10,8 +10,11 @@ import {
   Sliders, 
   Layers, 
   RefreshCw,
-  Bell
+  Bell,
+  Sun,
+  Moon
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import { SystemOperationMode, UserRole, AgriculturalField } from '../types';
 
 interface HeaderProps {
@@ -39,6 +42,8 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   onTabChange
 }) => {
+  const { theme, toggleTheme } = useTheme();
+  
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
       case 'superadmin':
@@ -57,9 +62,9 @@ export const Header: React.FC<HeaderProps> = ({
   const currentRoleInfo = getRoleBadge(activeRole);
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-xl">
+    <header className={`${theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-40 shadow-xl`}>
       {/* Top Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4`}>
         
         {/* Brand & Field Info */}
         <div className="flex items-center gap-3">
@@ -68,14 +73,14 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <h1 className={`text-base sm:text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-900'} tracking-tight flex items-center gap-2`}>
                 CLOSED-LOOP DIGITAL TWIN <span className="text-emerald-400">VRI</span>
               </h1>
-              <span className="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <span className={`px-2 py-0.5 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30`}>
                 PPO-RL Core
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-medium truncate max-w-md">
+            <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'} font-medium truncate max-w-md`}>
               {field.name} • {field.cropName} ({field.cropStage})
             </p>
           </div>
@@ -84,9 +89,32 @@ export const Header: React.FC<HeaderProps> = ({
         {/* System Controls & State Indicators */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+              theme === 'dark'
+                ? 'bg-slate-950 text-slate-300 border-slate-700 hover:border-slate-600 hover:text-slate-100'
+                : 'bg-slate-100 text-slate-700 border-slate-300 hover:border-slate-400 hover:bg-slate-200'
+            }`}
+            title={`Cambiar a ${theme === 'dark' ? 'modo claro' : 'modo oscuro'}`}
+          >
+            {theme === 'dark' ? (
+              <>
+                <Sun className="w-3.5 h-3.5 text-yellow-400" />
+                <span className="hidden sm:inline">Claro</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 text-slate-600" />
+                <span className="hidden sm:inline">Oscuro</span>
+              </>
+            )}
+          </button>
+          
           {/* Operation Mode Selector */}
-          <div className="flex items-center bg-slate-950/80 p-1 rounded-lg border border-slate-800">
-            <span className="text-xs font-medium text-slate-400 px-2 flex items-center gap-1">
+          <div className={`flex items-center ${theme === 'dark' ? 'bg-slate-950/80 border-slate-800' : 'bg-slate-100 border-slate-300'} p-1 rounded-lg border`}>
+            <span className={`text-xs font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'} px-2 flex items-center gap-1`}>
               <Sliders className="w-3.5 h-3.5 text-emerald-400" />
               Modo:
             </span>
@@ -95,8 +123,8 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => onSystemModeChange('manual')}
               className={`px-2.5 py-1 text-xs font-medium rounded transition-all ${
                 systemMode === 'manual'
-                  ? 'bg-slate-700 text-white shadow-sm font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? theme === 'dark' ? 'bg-slate-700 text-white shadow-sm font-semibold' : 'bg-slate-300 text-slate-900 shadow-sm font-semibold'
+                  : theme === 'dark' ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Manual
@@ -107,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`px-2.5 py-1 text-xs font-medium rounded transition-all ${
                 systemMode === 'assisted'
                   ? 'bg-blue-600 text-white shadow-sm font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : theme === 'dark' ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Asistido
@@ -118,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`px-2.5 py-1 text-xs font-medium rounded transition-all flex items-center gap-1 ${
                 systemMode === 'autonomous'
                   ? 'bg-emerald-600 text-white shadow-sm font-semibold animate-pulse'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : theme === 'dark' ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Cpu className="w-3 h-3" />
@@ -132,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onToggleOnline}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
               isOnline
-                ? 'bg-slate-950 text-slate-300 border-slate-700 hover:border-slate-600'
+                ? theme === 'dark' ? 'bg-slate-950 text-slate-300 border-slate-700 hover:border-slate-600' : 'bg-slate-100 text-slate-700 border-slate-300 hover:border-slate-400'
                 : 'bg-amber-950/40 text-amber-300 border-amber-500/40 hover:bg-amber-900/40'
             }`}
             title={isOnline ? 'Conexión activa con TimescaleDB y Celery' : 'Modo Rural Offline: Datos en cola local'}
@@ -151,19 +179,19 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* RBAC Role Switcher */}
-          <div className="flex items-center gap-1.5 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-slate-800">
-            <User className="w-3.5 h-3.5 text-slate-400" />
+          <div className={`flex items-center gap-1.5 ${theme === 'dark' ? 'bg-slate-950/80 border-slate-800' : 'bg-slate-100 border-slate-300'} px-2.5 py-1 rounded-lg border`}>
+            <User className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`} />
             <select
               id="role-selector-dropdown"
               value={activeRole}
               onChange={(e) => onRoleChange(e.target.value as UserRole)}
-              className="bg-transparent text-xs font-medium text-slate-200 focus:outline-none cursor-pointer pr-1"
+              className={`bg-transparent text-xs font-medium ${theme === 'dark' ? 'text-slate-200' : 'text-slate-900'} focus:outline-none cursor-pointer pr-1`}
             >
-              <option value="superadmin" className="bg-slate-900 text-white">Superadmin (Global)</option>
-              <option value="agronomist" className="bg-slate-900 text-white">Agrónomo Senior (Aprobador)</option>
-              <option value="farmer" className="bg-slate-900 text-white">Productor Agrícola (Fundo)</option>
-              <option value="field_technician" className="bg-slate-900 text-white">Técnico de Campo (IoT)</option>
-              <option value="rl_agent_system" className="bg-slate-900 text-white">RL Agent (System Core)</option>
+              <option value="superadmin" className={theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}>Superadmin (Global)</option>
+              <option value="agronomist" className={theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}>Agrónomo Senior (Aprobador)</option>
+              <option value="farmer" className={theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}>Productor Agrícola (Fundo)</option>
+              <option value="field_technician" className={theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}>Técnico de Campo (IoT)</option>
+              <option value="rl_agent_system" className={theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}>RL Agent (System Core)</option>
             </select>
             <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded border ${currentRoleInfo.color}`}>
               {currentRoleInfo.label}
@@ -174,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Main Navigation Bar */}
-      <nav className="bg-slate-950 border-t border-slate-800/80 px-4 sm:px-6">
+      <nav className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800/80' : 'bg-slate-100 border-slate-300'} border-t px-4 sm:px-6`}>
         <div className="max-w-7xl mx-auto flex items-center overflow-x-auto space-x-1 sm:space-x-2 py-1 scrollbar-none">
           {[
             { id: 'gis-map', label: '1. Gemelo Digital & Mapa GIS', icon: Layers },
@@ -195,10 +223,10 @@ export const Header: React.FC<HeaderProps> = ({
                 className={`flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
                   isActive
                     ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    : theme === 'dark' ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-900' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : theme === 'dark' ? 'text-slate-500' : 'text-slate-600'}`} />
                 {tab.label}
               </button>
             );
