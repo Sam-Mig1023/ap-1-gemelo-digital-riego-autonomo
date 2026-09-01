@@ -1,0 +1,654 @@
+================================================================================
+  GUÍA COMPLETA - ESTRUCTURA Y FUNCIONES DEL PROYECTO
+  VRI Digital Twin - Closed-Loop Autonomous Irrigation System
+================================================================================
+
+Este archivo explica QUÉ HACE cada carpeta y archivo del proyecto.
+
+================================================================================
+1. ESTRUCTURA PRINCIPAL DEL PROYECTO
+================================================================================
+
+ap-1-gemelo-digital-riego-autonomo/
+    ├── src/                    → FRONTEND REACT (Interfaz del usuario)
+    ├── backend/                → BACKEND FASTAPI (API REST)
+    ├── public/                 → Archivos estáticos (imágenes, iconos)
+    ├── package.json            → Configuración de dependencias Node.js
+    ├── tsconfig.json           → Configuración de TypeScript
+    ├── vite.config.ts          → Configuración de Vite (bundler)
+    ├── docker-compose.yml      → Orquestación de contenedores
+    ├── Dockerfile              → Configuración Docker para frontend
+    ├── .env.local              → Variables de entorno (crear durante instalación)
+    ├── .env.example            → Plantilla de variables de entorno
+    ├── .gitignore              → Archivos ignorados por Git
+    ├── README.md               → Documentación principal
+    ├── SETUP_GUIDE.md          → Guía de configuración detallada
+    └── PROJECT_GUIDE.txt       → Este archivo
+
+================================================================================
+2. FRONTEND - CARPETA /src (React + TypeScript + Tailwind CSS)
+================================================================================
+
+/src
+├── App.tsx
+│   ├─ FUNCIÓN: Componente raíz de toda la aplicación React
+│   ├─ QUÉ HACE: 
+│   │   • Gestiona el estado global (campos, zonas, sensores, decisiones RL)
+│   │   • Controla qué tab/vista se muestra (GIS, RL, Telemetría, etc.)
+│   │   • Maneja eventos de usuario (aprobación de decisiones, triggers de riego)
+│   │   • Coordina la comunicación entre componentes
+│   └─ IMPORTANTE: Es el "corazón" de la aplicación frontend
+│
+├── main.tsx
+│   ├─ FUNCIÓN: Punto de entrada de React
+│   ├─ QUÉ HACE:
+│   │   • Monta la aplicación React en el DOM
+│   │   • Carga Tailwind CSS
+│   │   • Inicializa el renderizado
+│   └─ NOTA: No necesitas modificar este archivo normalmente
+│
+├── index.css
+│   ├─ FUNCIÓN: Estilos globales
+│   ├─ QUÉ HACE:
+│   │   • Define estilos CSS globales para toda la aplicación
+│   │   • Importa Tailwind CSS
+│   └─ NOTA: Tailwind CSS proporciona la mayoría de estilos
+│
+├── components/  [Componentes React - Piezas de la interfaz]
+│   │
+│   ├── Header.tsx
+│   │   ├─ FUNCIÓN: Barra superior de la aplicación
+│   │   ├─ QUÉ HACE:
+│   │   │   • Muestra logo y título "CLOSED-LOOP DIGITAL TWIN VRI"
+│   │   │   • Selector de modo (Manual/Asistido/Autónomo)
+│   │   │   • Selector de rol de usuario (Superadmin/Agrónomo/Productor/etc.)
+│   │   │   • Indicador de estado online/offline
+│   │   │   • Navegación entre pestañas principales
+│   │   └─ VISUAL: La parte superior gris oscura que ves al abrir la app
+│   │
+│   ├── FieldGISMap.tsx
+│   │   ├─ FUNCIÓN: Mapa GIS interactivo del campo agrícola
+│   │   ├─ QUÉ HACE:
+│   │   │   • Dibuja el campo con 4 zonas de manejo (NW, NE, SW, SE)
+│   │   │   • Muestra pivot central rotando
+│   │   │   • Visualiza capas (humedad, estrés, dosis recomendada, radar)
+│   │   │   • Permite seleccionar zonas para ver detalles
+│   │   │   • Muestra sensores y lecturas en tiempo real
+│   │   │   • Botón para aplicar dosis de riego VRI
+│   │   └─ VISUAL: La parte central con el gráfico del campo
+│   │
+│   ├── RLDecisionConsole.tsx
+│   │   ├─ FUNCIÓN: Consola de decisiones del agente RL
+│   │   ├─ QUÉ HACE:
+│   │   │   • Muestra decisiones del agente de Aprendizaje por Refuerzo (PPO)
+│   │   │   • Lista decisiones pendientes de aprobación
+│   │   │   • Muestra explicabilidad (valores SHAP)
+│   │   │   • Permite aprobar, rechazar o anular manualmente decisiones
+│   │   │   • Historial de decisiones ejecutadas y feedback
+│   │   │   • Botón para reacoplar todas las decisiones RL
+│   │   └─ NOTA: Es donde interactúas con la IA de riego
+│   │
+│   ├── TelemetryAnalytics.tsx
+│   │   ├─ FUNCIÓN: Análisis de telemetría y datos de sensores
+│   │   ├─ QUÉ HACE:
+│   │   │   • Muestra gráficos de tendencias de humedad por zona
+│   │   │   • Visualiza temperatura del dosel en el tiempo
+│   │   │   • Datos de radar meteorológico
+│   │   │   • Tabla de lecturas más recientes de sensores
+│   │   │   • Detecta anomalías en datos
+│   │   └─ VISUAL: Gráficos dinámicos con datos históricos
+│   │
+│   ├── WhatIfSimulator.tsx
+│   │   ├─ FUNCIÓN: Simulador de escenarios "¿Qué pasa si?"
+│   │   ├─ QUÉ HACE:
+│   │   │   • Permite simular diferentes escenarios de riego
+│   │   │   • Varía: profundidad de riego, pronóstico de lluvia, olas de calor
+│   │   │   • Muestra impacto en balance hídrico
+│   │   │   • Calcula cambios en humedad del suelo a futuro
+│   │   │   • Exporta resultados de simulación
+│   │   └─ USO: Planificación y toma de decisiones estratégicas
+│   │
+│   ├── ReportExportStudio.tsx
+│   │   ├─ FUNCIÓN: Generador y exportador de reportes
+│   │   ├─ QUÉ HACE:
+│   │   │   • Genera reportes en PDF, Excel, Word
+│   │   │   • Selecciona qué datos incluir (telemetría, decisiones, etc.)
+│   │   │   • Descarga reportes al dispositivo
+│   │   │   • Historial de reportes generados
+│   │   │   • Programación de reportes automáticos
+│   │   └─ FORMATO: PDF (visual), Excel (datos), Word (informe técnico)
+│   │
+│   ├── RBACAuditConsole.tsx
+│   │   ├─ FUNCIÓN: Consola de Control de Acceso y Auditoría
+│   │   ├─ QUÉ HACE:
+│   │   │   • Muestra quién hizo qué y cuándo (auditoría)
+│   │   │   • Roles de usuario: Superadmin, Agrónomo, Productor, Técnico, RL Agent
+│   │   │   • Registro de todas las acciones (aprobaciones, ejecuciones)
+│   │   │   • Firma SHA-256 para integridad de datos
+│   │   │   • Filtrar por usuario, fecha, tipo de acción
+│   │   └─ SEGURIDAD: Trazabilidad completa de operaciones
+│   │
+│   ├── ClosedLoopFeedbackModal.tsx
+│   │   ├─ FUNCIÓN: Modal para retroalimentación del loop cerrado
+│   │   ├─ QUÉ HACE:
+│   │   │   • Después de ejecutar riego, permite registrar resultado real
+│   │   │   • Compara predicción vs resultado real
+│   │   │   • Retroalimenta al agente RL para mejora continua
+│   │   │   • Registra recompensa (reward) obtenida
+│   │   └─ IMPORTANTE: Cierra el loop de aprendizaje
+│   │
+│   └── ArchitectureAndCodeViewer.tsx
+│       ├─ FUNCIÓN: Visor de arquitectura y código
+│       ├─ QUÉ HACE:
+│       │   • Pestaña 1: Diagrama de arquitectura del sistema
+│       │   • Pestaña 2: Estructura de base de datos
+│       │   • Pestaña 3: Especificación OpenAPI (endpoints)
+│       │   • Pestaña 4: Código de ejemplo (Python/SQL)
+│       └─ USO: Documentación técnica integrada en la app
+│
+├── services/  [Lógica de negocio - Servicios]
+│   │
+│   ├── apiClient.ts
+│   │   ├─ FUNCIÓN: Cliente HTTP para comunicarse con el backend
+│   │   ├─ QUÉ HACE:
+│   │   │   • Realiza peticiones HTTP a la API de FastAPI
+│   │   │   • Métodos tipados para cada endpoint
+│   │   │   • Gestión de errores automática
+│   │   │   • Manejo de CORS
+│   │   └─ NOTA: Está listo pero actualmente no se usa (datos mock)
+│   │
+│   ├── rlAgentEngine.ts
+│   │   ├─ FUNCIÓN: Simulador del agente RL (Reinforcement Learning)
+│   │   ├─ QUÉ HACE:
+│   │   │   • Simula decisiones del agente PPO (Proximal Policy Optimization)
+│   │   │   • Toma observaciones (sensores) y genera recomendaciones
+│   │   │   • Calcula confianza (confidence score) de la recomendación
+│   │   │   • Genera explicabilidad con valores SHAP
+│   │   │   • Modo seguro (safe_mode) para limitar dosis extremas
+│   │   └─ NOTA: Simula RL; en producción se conectaría a modelo real
+│   │
+│   ├── closedLoopController.ts
+│   │   ├─ FUNCIÓN: Controlador del loop cerrado
+│   │   ├─ QUÉ HACE:
+│   │   │   • Gestiona el flujo: decisión → ejecución → feedback
+│   │   │   • Compara predicción vs realidad
+│   │   │   • Calcula reward (recompensa) para RL
+│   │   │   • Registra experiencias para reentrenamiento
+│   │   └─ FLUJO: Decisión RL → Ejecución → Observar resultado → Aprender
+│   │
+│   ├── digitalTwinEngine.ts
+│   │   ├─ FUNCIÓN: Motor del Gemelo Digital
+│   │   ├─ QUÉ HACE:
+│   │   │   • Simula dinámica hídrica del suelo
+│   │   │   • Modelo Green-Ampt para infiltración
+│   │   │   • Cálculo de evapotranspiración (ETc)
+│   │   │   • Predicción de humedad futura
+│   │   │   • Integra datos de sensores con modelo físico
+│   │   └─ MATEMÁTICA: Ecuaciones diferenciales de balance hídrico
+│   │
+│   ├── anomalyDetectionEngine.ts
+│   │   ├─ FUNCIÓN: Detector de anomalías en datos de sensores
+│   │   ├─ QUÉ HACE:
+│   │   │   • Isolation Forest para detectar lecturas anómalas
+│   │   │   • Identifica sensores defectuosos
+│   │   │   • Filtra datos antes de usarlos en RL
+│   │   │   • Alerta cuando hay anomalías
+│   │   └─ SEGURIDAD: Evita decisiones basadas en datos erróneos
+│   │
+│   ├── reportGenerators.ts
+│   │   ├─ FUNCIÓN: Generadores de reportes
+│   │   ├─ QUÉ HACE:
+│   │   │   • Genera PDF (jsPDF + reportlab)
+│   │   │   • Genera Excel (xlsx)
+│   │   │   • Genera Word (.docx)
+│   │   │   • Genera CSV para análisis
+│   │   │   • Formatea datos agronómicos
+│   │   └─ FORMATO: Documentos profesionales listos para compartir
+│   │
+│   └── codebaseData.ts
+│       ├─ FUNCIÓN: Datos del código base (para la pestaña de arquitectura)
+│       ├─ QUÉ HACE:
+│       │   • Almacena ejemplos de código Python/SQL
+│       │   • Esquema de base de datos
+│       │   • Especificación OpenAPI
+│       │   • Documentación técnica
+│       └─ NOTA: Datos estáticos para mostrar en la UI
+│
+├── data/  [Datos de demostración]
+│   │
+│   └── mockData.ts
+│       ├─ FUNCIÓN: Datos de ejemplo para desarrollo/demostración
+│       ├─ QUÉ HACE:
+│       │   • Define campo agrícola inicial (Campo San Jerónimo)
+│       │   • 4 zonas de manejo con características
+│       │   • Sensores virtuales y sus lecturas
+│       │   • Decisiones RL simuladas
+│       │   • Usuarios de prueba
+│       │   • Registros de auditoría
+│       │   • Histórico de decisiones
+│       └─ NOTA: Se reemplazaría con datos reales de BD
+│
+└── types/  [Definiciones de tipos TypeScript]
+    │
+    └── index.ts
+        ├─ FUNCIÓN: Tipos e interfaces del proyecto
+        ├─ QUÉ HACE:
+        │   • AgriculturalField: Estructura de un campo
+        │   • ManagementZone: Zona de manejo
+        │   • SensorTelemetry: Lectura de sensor
+        │   • RLDecision: Decisión del agente
+        │   • XAIExplanation: Explicación de decisión
+        │   • AuditLogEntry: Registro de auditoría
+        │   • WeatherRadarCell: Celda de radar
+        │   • Y muchas más...
+        └─ IMPORTANTE: Todas las interfaces están aquí (type-safe)
+
+================================================================================
+3. BACKEND - CARPETA /backend (Python + FastAPI)
+================================================================================
+
+/backend
+├── app/
+│   │
+│   ├── main.py
+│   │   ├─ FUNCIÓN: Punto de entrada de la API
+│   │   ├─ QUÉ HACE:
+│   │   │   • Crea la aplicación FastAPI
+│   │   │   • Configura CORS (permite acceso desde frontend)
+│   │   │   • Carga endpoint routers
+│   │   │   • Inicializa base de datos al startup
+│   │   │   • Punto de entrada: http://localhost:8000
+│   │   └─ COMANDO: python -m uvicorn app.main:app --reload
+│   │
+│   ├── core/  [Configuración central]
+│   │   │
+│   │   ├── config.py
+│   │   │   ├─ FUNCIÓN: Configuración de la aplicación
+│   │   │   ├─ QUÉ HACE:
+│   │   │   │   • Lee variables de entorno (.env)
+│   │   │   │   • Define parámetros globales
+│   │   │   │   • URLs, puertos, credenciales (DB, Redis, etc.)
+│   │   │   │   • Niveles de log, parámetros RL
+│   │   │   └─ NOTA: Centraliza toda configuración
+│   │   │
+│   │   └── database.py
+│   │       ├─ FUNCIÓN: Gestión de conexión a base de datos
+│   │       ├─ QUÉ HACE:
+│   │       │   • Inicializa pool de conexión PostgreSQL
+│   │       │   • Crea/migra tablas
+│   │       │   • Proporciona sesión para queries
+│   │       │   • Cierra conexiones al shutdown
+│   │       └─ NOTA: Actualmente en modo "demo" (sin BD real)
+│   │
+│   └── api/v1/endpoints/  [Endpoints REST de la API]
+│       │
+│       ├── __init__.py
+│       │   └─ FUNCIÓN: Agrupa e importa todos los routers
+│       │
+│       ├── health.py
+│       │   ├─ FUNCIÓN: Endpoints de salud de la aplicación
+│       │   ├─ QUÉ HACE:
+│       │   │   • GET /health → ¿Está viva la aplicación?
+│       │   │   • GET /ready → ¿Está lista para recibir requests?
+│       │   └─ USO: Kubernetes, docker-compose health checks
+│       │
+│       ├── fields.py
+│       │   ├─ FUNCIÓN: Gestión de campos agrícolas
+│       │   ├─ ENDPOINTS:
+│       │   │   • GET /api/v1/fields → Lista todos los campos
+│       │   │   • GET /api/v1/fields/{field_id} → Detalles de un campo
+│       │   │   • GET /api/v1/fields/{field_id}/zones → Zonas del campo
+│       │   │   • GET /api/v1/fields/{field_id}/zones/{zone_id} → Zona específica
+│       │   └─ DATOS: Nombre, cultivo, área, localización, tipo de suelo
+│       │
+│       ├── sensors.py
+│       │   ├─ FUNCIÓN: Gestión de sensores y telemetría
+│       │   ├─ ENDPOINTS:
+│       │   │   • GET /api/v1/sensors → Lista de sensores
+│       │   │   • GET /api/v1/sensors/{sensor_id} → Detalles sensor
+│       │   │   • POST /api/v1/sensors/telemetry/ingest → Recibir datos de sensores
+│       │   │   • GET /api/v1/sensors/zone/{zone_id} → Sensores de una zona
+│       │   └─ DATOS: Humedad, temperatura, presión (datos en tiempo real)
+│       │
+│       ├── rl_engine.py
+│       │   ├─ FUNCIÓN: Motor de Reinforcement Learning
+│       │   ├─ ENDPOINTS:
+│       │   │   • POST /api/v1/rl-engine/infer-vri-rates → Inferencia (decision)
+│       │   │   • GET /api/v1/rl-engine/decisions → Historial de decisiones
+│       │   │   • POST /api/v1/rl-engine/decisions/{id}/approve → Aprobar decisión
+│       │   │   • POST /api/v1/rl-engine/decisions/{id}/override → Anular decisión
+│       │   │   • POST /api/v1/rl-engine/retrain-policy → Reentrenar modelo
+│       │   └─ NOTA: Aquí va la inteligencia de riego
+│       │
+│       ├── irrigation.py
+│       │   ├─ FUNCIÓN: Control del sistema de riego VRI
+│       │   ├─ ENDPOINTS:
+│       │   │   • POST /api/v1/irrigation/execute-decision → Ejecutar riego
+│       │   │   • POST /api/v1/irrigation/manual-trigger → Riego manual
+│       │   │   • GET /api/v1/irrigation/status → Estado del sistema
+│       │   │   • GET /api/v1/irrigation/schedule → Próximos riegos
+│       │   │   • POST /api/v1/irrigation/emergency-stop → Parar todo
+│       │   └─ HARDWARE: Se conectaría a válvulas PWM, PLC, etc.
+│       │
+│       └── reports.py
+│           ├─ FUNCIÓN: Generación y gestión de reportes
+│           ├─ ENDPOINTS:
+│           │   • POST /api/v1/reports/generate → Generar reporte
+│           │   • GET /api/v1/reports/{id}/status → Estado reporte
+│           │   • GET /api/v1/reports/{id}/download → Descargar
+│           │   • GET /api/v1/reports/history → Historial
+│           │   • POST /api/v1/reports/schedule → Reportes automáticos
+│           │   • POST /api/v1/reports/what-if-export → Exportar simulación
+│           └─ FORMATOS: PDF, Excel, Word, CSV
+│
+├── requirements.txt
+│   ├─ FUNCIÓN: Dependencias de Python
+│   ├─ QUÉ HACE: Lista todas las librerías necesarias para el backend
+│   └─ COMANDO: pip install -r requirements.txt
+│
+├── Dockerfile
+│   ├─ FUNCIÓN: Imagen Docker del backend
+│   ├─ QUÉ HACE:
+│   │   • Define cómo containerizar la app FastAPI
+│   │   • Base: Python 3.11 slim
+│   │   • Instala dependencias
+│   │   • Expone puerto 8000
+│   │   • Comando startup: uvicorn
+│   └─ COMANDO: docker build -t vri-backend .
+│
+├── .env.example
+│   ├─ FUNCIÓN: Plantilla de variables de entorno
+│   ├─ QUÉ HACER: Copiar a .env y completar valores
+│   └─ NOTA: No incluir secrets reales en repositorio
+│
+└── README.md
+    └─ FUNCIÓN: Documentación específica del backend
+
+================================================================================
+4. ARCHIVOS DE CONFIGURACIÓN EN RAÍZ
+================================================================================
+
+package.json
+├─ FUNCIÓN: Configuración de dependencias Node.js/npm
+├─ SECCIONES:
+│   • "scripts": Comandos npm (dev, build, lint)
+│   • "dependencies": Librerías de producción (React, Tailwind, etc.)
+│   • "devDependencies": Librerías de desarrollo (TypeScript, Vite)
+└─ COMANDO: npm install (instala todo basado en este archivo)
+
+tsconfig.json
+├─ FUNCIÓN: Configuración del compilador TypeScript
+├─ QUÉ CONTROLA:
+│   • Versión de JavaScript destino
+│   • Importación de módulos
+│   • Rutas de módulos
+│   • Nivel de strictness
+└─ NOTA: Define cómo TypeScript compila a JavaScript
+
+vite.config.ts
+├─ FUNCIÓN: Configuración de Vite (bundler y dev server)
+├─ QUÉ DEFINE:
+│   • Puerto del dev server (3000)
+│   • Modo HMR (hot reload)
+│   • Optimizaciones de build
+│   • Plugins (React)
+└─ COMANDO: npm run dev (usa esta config)
+
+docker-compose.yml
+├─ FUNCIÓN: Orquestación de múltiples contenedores
+├─ SERVICIOS:
+│   • db: PostgreSQL + TimescaleDB + PostGIS
+│   • redis: Cache y message broker
+│   • backend: FastAPI
+│   • frontend: React
+├─ PUERTOS:
+│   • 3000: Frontend
+│   • 8000: Backend API
+│   • 5432: Base de datos
+│   • 6379: Redis
+└─ COMANDO: docker-compose up -d
+
+.env.local
+├─ FUNCIÓN: Variables de entorno locales (DEV)
+├─ QUÉ CONTIENE:
+│   • VITE_API_URL=http://localhost:8000 (URL del backend)
+│   • VITE_APP_ENV=development
+│   • VITE_DEBUG=true
+└─ IMPORTANTE: Crear durante instalación (no en Git)
+
+.env.example
+└─ FUNCIÓN: Plantilla de variables de entorno (referencia)
+
+.gitignore
+├─ FUNCIÓN: Archivos que NO se suben a Git
+├─ INCLUYE:
+│   • node_modules/
+│   • .env.local (secretos)
+│   • dist/ (compilados)
+│   • __pycache__/ (bytecode Python)
+└─ NOTA: Configurable, no hacer push de secretos
+
+README.md
+└─ FUNCIÓN: Documentación principal del proyecto (ESTE ARCHIVO)
+
+================================================================================
+5. FLUJO DE DATOS - CÓMO FUNCIONA EL SISTEMA
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     FLUJO DE UNA DECISIÓN DE RIEGO                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+PASO 1: Lectura de Sensores
+├─ Sensores IoT leen:
+│   • Humedad del suelo (10cm, 30cm, 60cm)
+│   • Temperatura del dosel (IRT)
+│   • Déficit de presión de vapor (VPD)
+│   • Intensidad de radar meteorológico
+│   └─ Datos llegan a: apiClient.ts → ingestTelemetry()
+
+PASO 2: Procesamiento
+├─ anomalyDetectionEngine.ts
+│   └─ Detecta lecturas anómalas (Isolation Forest)
+├─ digitalTwinEngine.ts
+│   └─ Simula estado hídrico del suelo
+└─ Datos limpios y simulados listos
+
+PASO 3: Inferencia RL
+├─ rlAgentEngine.ts (frontend) simula:
+│   • Ejecuta política PPO
+│   • Genera recomendación de dosis
+│   • Calcula confianza (0.0-1.0)
+│   • Explica decisión (valores SHAP)
+└─ Resultado: RLDecision → mostrar en UI
+
+PASO 4: Aprobación Humana
+├─ Agrónomo ve la decisión en RLDecisionConsole
+├─ Puede: Aprobar / Rechazar / Anular manualmente
+└─ Decisión aprobada se registra en auditoría
+
+PASO 5: Ejecución
+├─ IrrigationControl envía comando VRI
+│   • PWM signals a válvulas
+│   • Profundidad: mm
+│   • Zona: 1-4
+│   • Ventana: horario de tarifa optimizada
+└─ Riego ejecutado en campo
+
+PASO 6: Feedback del Loop Cerrado
+├─ Después del riego se observan resultados:
+│   • Nueva humedad del suelo
+│   • Cambio en estrés hídrico
+│   • Consumo de agua real vs predicho
+└─ closedLoopController.ts calcula reward
+
+PASO 7: Aprendizaje
+├─ Experiencia registrada: (estado, acción, recompensa)
+├─ Se acumula para reentrenamiento del modelo PPO
+└─ Próxima vez la IA toma mejores decisiones
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        COMPONENTES PRINCIPALES                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. GEMELO DIGITAL (Digital Twin)
+   ├─ Simula dinámica hídrica del suelo
+   ├─ Modelo: Green-Ampt (infiltración) + Balance hídrico
+   └─ Entrada: Riego, lluvia → Salida: Humedad predicha
+
+2. AGENTE RL (Reinforcement Learning Agent)
+   ├─ Algoritmo: PPO (Proximal Policy Optimization)
+   ├─ Entrada: Estado (sensores + digital twin)
+   └─ Salida: Acción (dosis de riego recomendada)
+
+3. XAI (eXplainable AI)
+   ├─ Valores SHAP: Qué sensores influyeron en la decisión
+   ├─ Reasoning text: Explicación en lenguaje natural
+   └─ Confianza: Score de certeza (0-1)
+
+4. CLOSED-LOOP
+   ├─ Feedback: Resultado real vs predicción
+   ├─ Reward: Métrica de éxito
+   └─ Reentrenamiento: Mejora continua del modelo
+
+5. RBAC & AUDITORÍA
+   ├─ Roles: Superadmin, Agrónomo, Productor, Técnico, RL Agent
+   ├─ Auditoría: Quién hizo qué y cuándo
+   └─ SHA-256: Firma digital de cada operación
+
+================================================================================
+6. TECNOLOGÍAS UTILIZADAS
+================================================================================
+
+FRONTEND:
+├─ React 19: Framework UI
+├─ TypeScript: Lenguaje tipado
+├─ Vite: Bundler rápido
+├─ Tailwind CSS: Estilos utility-first
+├─ Recharts: Gráficos
+├─ jsPDF: Generar PDFs
+├─ docx: Generar Word
+└─ xlsx: Generar Excel
+
+BACKEND:
+├─ FastAPI: Framework API REST
+├─ Python 3.11: Lenguaje
+├─ Pydantic: Validación de datos
+├─ SQLAlchemy: ORM
+├─ asyncpg: Driver PostgreSQL async
+├─ Redis: Cache y message broker
+└─ Celery: Task queue
+
+BASES DE DATOS:
+├─ PostgreSQL: DB relacional
+├─ TimescaleDB: Extensión para series temporales
+├─ PostGIS: Extensión para datos geoespaciales
+└─ Redis: Cache en memoria
+
+DEPLOYMENT:
+├─ Docker: Containerización
+├─ Docker Compose: Orquestación local
+└─ Kubernetes: Escalabilidad (futuro)
+
+================================================================================
+7. CÓMO MODIFICAR Y EXTENDER
+================================================================================
+
+Agregar nuevo endpoint REST:
+1. Crear archivo en /backend/app/api/v1/endpoints/
+2. Definir función con @router.get() o @router.post()
+3. Incluir router en /backend/app/api/v1/__init__.py
+4. El endpoint estará automáticamente en Swagger Docs
+
+Agregar nuevo componente React:
+1. Crear archivo .tsx en /src/components/
+2. Exportar componente funcional
+3. Importar en App.tsx o en otro componente
+4. Vite recargará automáticamente (HMR)
+
+Agregar nuevo tipo TypeScript:
+1. Definir interfaz en /src/types/index.ts
+2. Usar en componentes: const data: NuevoTipo = ...
+3. TypeScript verificará tipos automáticamente
+
+Conectar a base de datos real:
+1. Descomentar imports en database.py
+2. Configurar DATABASE_URL en .env
+3. Definir modelos en /backend/app/models/
+4. Las tablas se crearán automáticamente
+
+================================================================================
+8. DESARROLLO Y DEBUGGING
+================================================================================
+
+Ver logs del frontend:
+- Abrir DevTools del navegador (F12)
+- Console tab para errores de JavaScript
+
+Ver logs del backend:
+- Terminal donde corre uvicorn
+- Verás INFO/ERROR de cada request
+
+Debug de variables:
+- Frontend: console.log() en TypeScript
+- Backend: print() o logger.info() en Python
+
+Reload automático:
+- Frontend: Vite observa cambios en src/
+- Backend: uvicorn --reload observa cambios en backend/
+
+Profiler de rendimiento:
+- DevTools → Performance tab
+- chrome://tracing para traces detallados
+
+================================================================================
+9. PRÓXIMAS EXTENSIONES RECOMENDADAS
+================================================================================
+
+1. Integración Real de RL:
+   ├─ Sustituir simulación con modelo PPO real (TensorFlow/PyTorch)
+   └─ Agregar pipeline de reentrenamiento
+
+2. Base de Datos:
+   ├─ Migrar datos mock a PostgreSQL
+   ├─ Implementar todas las tablas SQLAlchemy
+   └─ Agregar índices para performance
+
+3. Autenticación:
+   ├─ JWT tokens
+   ├─ OAuth2
+   └─ MFA (multi-factor authentication)
+
+4. WebSockets:
+   ├─ Real-time updates de sensores
+   ├─ Notificaciones live
+   └─ Streaming de telemetría
+
+5. Hardware:
+   ├─ Integración con PLC (Programmable Logic Controller)
+   ├─ Protocolo Modbus/FieldNET
+   └─ Válvulas VRI reales
+
+6. Machine Learning:
+   ├─ Entrenamiento real del agente PPO
+   ├─ MLflow para tracking de experimentos
+   └─ Modelos persistentes en versión
+
+7. Escalabilidad:
+   ├─ Kubernetes para deployment
+   ├─ Load balancer para múltiples instancias
+   └─ Monitoring con Prometheus/Grafana
+
+================================================================================
+10. CONTACTO Y SOPORTE
+================================================================================
+
+Para más información:
+- README.md: Guía general de instalación
+- SETUP_GUIDE.md: Configuración avanzada
+- FastAPI Docs: http://localhost:8000/docs (cuando está corriendo)
+- React Docs: https://react.dev/
+
+================================================================================
+FIN DE LA GUÍA
+================================================================================
