@@ -16,8 +16,10 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { CODEBASE_DELIVERABLES, CodeFile } from '../services/codebaseData';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const ArchitectureAndCodeViewer: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedFile, setSelectedFile] = useState<CodeFile>(CODEBASE_DELIVERABLES[0]);
   const [copied, setCopied] = useState<boolean>(false);
@@ -44,10 +46,10 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-              Arquitectura del Sistema & Repositorio de Código Productivo
+              {t('codeViewer.title')}
             </h2>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-              Stack: Python 3.11, FastAPI (async), PostgreSQL 15 + PostGIS + TimescaleDB, Gymnasium RL, Celery, Docker Compose
+              {t('codeViewer.subtitle')}
             </p>
           </div>
         </div>
@@ -55,10 +57,10 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
         {/* Sub-Tab Navigation */}
         <div className="flex items-center bg-slate-50 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
           {[
-            { id: 'architecture', label: '1. Pipeline & Flujo', icon: Boxes },
-            { id: 'codebase', label: '2. Código Fuente Backend', icon: Terminal },
-            { id: 'er_diagram', label: '3. Esquema ER & PostGIS', icon: Database },
-            { id: 'api_spec', label: '4. Especificación de API', icon: Server }
+            { id: 'architecture', label: t('codeViewer.tabs.architecture'), icon: Boxes },
+            { id: 'codebase', label: t('codeViewer.tabs.codebase'), icon: Terminal },
+            { id: 'er_diagram', label: t('codeViewer.tabs.er'), icon: Database },
+            { id: 'api_spec', label: t('codeViewer.tabs.api'), icon: Server }
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeSubTab === tab.id;
@@ -89,9 +91,9 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Boxes className="w-4 h-4 text-emerald-400" />
-                <span>Arquitectura de Extremo a Extremo: Flujo de Datos & Ciclo Cerrado</span>
+                <span>{t('codeViewer.architecture.pipelineTitle')}</span>
               </h3>
-              <span className="text-xs text-emerald-400 font-mono">Feedback Loop: 45-60 min</span>
+              <span className="text-xs text-emerald-400 font-mono">{t('codeViewer.architecture.feedbackLoop')}</span>
             </div>
 
             {/* Pipeline Stage Blocks */}
@@ -102,15 +104,15 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold font-mono">
                   01
                 </div>
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white">Ingestión Multi-Sensor</h4>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white">{t('codeViewer.architecture.stages.0.title')}</h4>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                  • Sondas FDR/TDR (10, 30, 60cm)<br />
-                  • Termografía IRT de dosel<br />
-                  • Grillas de Radar (dBZ)<br />
-                  • Estación meteorológica
+                  {t('codeViewer.architecture.stages.0.bullets.0')}<br />
+                  {t('codeViewer.architecture.stages.0.bullets.1')}<br />
+                  {t('codeViewer.architecture.stages.0.bullets.2')}<br />
+                  {t('codeViewer.architecture.stages.0.bullets.3')}
                 </p>
                 <span className="text-[10px] text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded block text-center border border-blue-500/30">
-                  TimescaleDB (Hypertable)
+                  {t('codeViewer.architecture.stages.0.storage')}
                 </span>
               </div>
 
@@ -119,15 +121,15 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold font-mono">
                   02
                 </div>
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white">Fusión Tensor & XAI</h4>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white">{t('codeViewer.architecture.stages.1.title')}</h4>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                  • Filtro Isolation Forest<br />
-                  • Cálculo CWSI & VPD<br />
-                  • Normalización fenológica<br />
-                  • Tensor [Zonas, 12 Caracts.]
+                  {t('codeViewer.architecture.stages.1.bullets.0')}<br />
+                  {t('codeViewer.architecture.stages.1.bullets.1')}<br />
+                  {t('codeViewer.architecture.stages.1.bullets.2')}<br />
+                  {t('codeViewer.architecture.stages.1.bullets.3')}
                 </p>
                 <span className="text-[10px] text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded block text-center border border-purple-500/30">
-                  Pipeline NumPy / SciPy
+                  {t('codeViewer.architecture.stages.1.storage')}
                 </span>
               </div>
 
@@ -136,15 +138,15 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold font-mono">
                   03
                 </div>
-                <h4 className="text-xs font-bold text-emerald-400">Núcleo Agente PPO / SAC</h4>
+                <h4 className="text-xs font-bold text-emerald-400">{t('codeViewer.architecture.stages.2.title')}</h4>
                 <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
-                  • Inferencia de política continua<br />
-                  • Recompensa multi-objetivo<br />
-                  • Explicabilidad SHAP<br />
-                  • Salvaguarda Modo Seguro
+                  {t('codeViewer.architecture.stages.2.bullets.0')}<br />
+                  {t('codeViewer.architecture.stages.2.bullets.1')}<br />
+                  {t('codeViewer.architecture.stages.2.bullets.2')}<br />
+                  {t('codeViewer.architecture.stages.2.bullets.3')}
                 </p>
                 <span className="text-[10px] text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded block text-center border border-emerald-500/40 font-semibold">
-                  Stable-Baselines3 / Ray
+                  {t('codeViewer.architecture.stages.2.storage')}
                 </span>
               </div>
 
@@ -153,15 +155,15 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-bold font-mono">
                   04
                 </div>
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white">Controlador VRI</h4>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white">{t('codeViewer.architecture.stages.3.title')}</h4>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                  • Válvulas moduladas PWM<br />
-                  • Boquillas de Pivot Central<br />
-                  • Ventana nocturna (tarifa)<br />
-                  • Registro en Auditoría
+                  {t('codeViewer.architecture.stages.3.bullets.0')}<br />
+                  {t('codeViewer.architecture.stages.3.bullets.1')}<br />
+                  {t('codeViewer.architecture.stages.3.bullets.2')}<br />
+                  {t('codeViewer.architecture.stages.3.bullets.3')}
                 </p>
                 <span className="text-[10px] text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded block text-center border border-amber-500/30">
-                  API Modbus / FieldNET
+                  {t('codeViewer.architecture.stages.3.storage')}
                 </span>
               </div>
 
@@ -170,15 +172,15 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold font-mono">
                   05
                 </div>
-                <h4 className="text-xs font-bold text-blue-400">Ciclo Cerrado (Gemelo)</h4>
+                <h4 className="text-xs font-bold text-blue-400">{t('codeViewer.architecture.stages.4.title')}</h4>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                  • Lectura a 45-60 min<br />
-                  • Error Δθ = Real - Modelo<br />
-                  • Recalibración Ksat Green-Ampt<br />
-                  • Sincronización continua
+                  {t('codeViewer.architecture.stages.4.bullets.0')}<br />
+                  {t('codeViewer.architecture.stages.4.bullets.1')}<br />
+                  {t('codeViewer.architecture.stages.4.bullets.2')}<br />
+                  {t('codeViewer.architecture.stages.4.bullets.3')}
                 </p>
                 <span className="text-[10px] text-blue-300 bg-blue-950/80 px-2 py-0.5 rounded block text-center border border-blue-500/40 font-semibold">
-                  Tarea de Trabajador Celery
+                  {t('codeViewer.architecture.stages.4.storage')}
                 </span>
               </div>
 
@@ -188,13 +190,13 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
             <div className="bg-slate-50/60 dark:bg-slate-950/80 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2 text-xs text-slate-700 dark:text-slate-300">
               <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span>Supuestos Físicos y Formalización Matemática del Gemelo Digital:</span>
+                <span>{t('codeViewer.architecture.assumptionsTitle')}</span>
               </h4>
               <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400 text-[11px]">
-                <li><strong>Infiltración no lineal:</strong> Se asume la ecuación de <em>Green-Ampt</em> simplificada f(t) = Ksat &middot; [1 + (&psi; &middot; &Delta;&theta;)/F(t)] para evitar escorrentía superficial.</li>
-                <li><strong>Estrés hídrico térmico:</strong> El índice <em>CWSI</em> normaliza la diferencia (Tc - Ta) frente a las líneas base no estresadas e intranspirables en función del déficit de presión de vapor (VPD).</li>
-                <li><strong>Balance de dos capas FAO-56:</strong> Horizonte superficial (0-30cm) sujeto a evaporación directa (Ke) y horizonte profundo (30-60cm) dominado por transpiración basal (Kcb).</li>
-                <li><strong>Modo Seguro Autónomo:</strong> Si el clasificador Isolation Forest detecta anomalías en &ge; 1 sensor o el radar prevé tormenta &gt; 20mm, el sistema desactiva el actuador y solicita validación humana.</li>
+                <li dangerouslySetInnerHTML={{__html: t('codeViewer.architecture.assumptions.0')}}></li>
+                <li dangerouslySetInnerHTML={{__html: t('codeViewer.architecture.assumptions.1')}}></li>
+                <li dangerouslySetInnerHTML={{__html: t('codeViewer.architecture.assumptions.2')}}></li>
+                <li dangerouslySetInnerHTML={{__html: t('codeViewer.architecture.assumptions.3')}}></li>
               </ul>
             </div>
 
@@ -212,20 +214,20 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <FileCode className="w-3.5 h-3.5 text-emerald-400" />
-                Archivos del Backend
+                {t('codeViewer.codebase.browserTitle')}
               </span>
-              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">{filteredFiles.length} archivos</span>
+              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">{filteredFiles.length} {t('codeViewer.codebase.filesSuffix')}</span>
             </div>
 
             {/* Category Filter */}
             <div className="flex flex-wrap gap-1">
               {[
-                { key: 'all', label: 'TODOS' },
-                { key: 'backend', label: 'BACKEND' },
-                { key: 'database', label: 'BASE DE DATOS' },
-                { key: 'ml_rl', label: 'ML / RL' },
-                { key: 'infrastructure', label: 'INFRAESTRUCTURA' },
-                { key: 'tests', label: 'PRUEBAS' }
+                { key: 'all', label: t('codeViewer.codebase.categories.all') },
+                { key: 'backend', label: t('codeViewer.codebase.categories.backend') },
+                { key: 'database', label: t('codeViewer.codebase.categories.database') },
+                { key: 'ml_rl', label: t('codeViewer.codebase.categories.mlrl') },
+                { key: 'infrastructure', label: t('codeViewer.codebase.categories.infra') },
+                { key: 'tests', label: t('codeViewer.codebase.categories.tests') }
               ].map((cat) => (
                 <button
                   key={cat.key}
@@ -283,7 +285,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 className="flex items-center gap-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 transition-all"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Copiado' : 'Copiar Código'}</span>
+                <span>{copied ? t('codeViewer.codebase.copied') : t('codeViewer.codebase.copy')}</span>
               </button>
             </div>
 
@@ -302,7 +304,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Database className="w-4 h-4 text-emerald-400" />
-              <span>Esquema Relacional PostgreSQL 15 + PostGIS + TimescaleDB</span>
+              <span>{t('codeViewer.er.title')}</span>
             </h3>
             <span className="text-xs text-slate-600 dark:text-slate-400">SRID: 4326 (WGS 84)</span>
           </div>
@@ -367,21 +369,21 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Server className="w-4 h-4 text-emerald-400" />
-              <span>Referencia de Endpoints OpenAPI 3.0 / FastAPI</span>
+              <span>{t('codeViewer.api.title')}</span>
             </h3>
             <span className="text-xs text-emerald-400 font-mono">REST + WebSockets</span>
           </div>
 
           <div className="space-y-2.5 text-xs font-mono">
             {[
-              { method: 'POST', path: '/api/v1/auth/login', desc: 'Intercambio de token JWT OAuth2 con claims de RBAC' },
-              { method: 'GET', path: '/api/v1/fields/{field_id}/zones', desc: 'Devuelve límites PostGIS y estado hidráulico actual del suelo' },
-              { method: 'POST', path: '/api/v1/sensors/telemetry/ingest', desc: 'Ingesta lote de alto rendimiento TimescaleDB con puerta de anomalías Isolation Forest' },
-              { method: 'POST', path: '/api/v1/rl/infer-vri-rates', desc: 'Ejecuta forward pass de red de política PPO y devuelve atribuciones SHAP' },
-              { method: 'POST', path: '/api/v1/irrigation/execute-decision', desc: 'Despacha comando de dosis variable VRI a la pasarela de hardware' },
-              { method: 'POST', path: '/api/v1/digital-twin/what-if', desc: 'Simula balance hídrico multi-día progresivo con infiltración Green-Ampt' },
-              { method: 'GET', path: '/api/v1/reports/export/{format}', desc: 'Genera y descarga PDF, Word (.docx), Excel (.xlsx) o CSV' },
-              { method: 'WS', path: '/ws/telemetry/{field_id}', desc: 'Flujo WebSocket en tiempo real para actualizaciones UI de sub-segundo' }
+              { method: 'POST', path: '/api/v1/auth/login', desc: t('codeViewer.api.endpoints.0') },
+              { method: 'GET', path: '/api/v1/fields/{field_id}/zones', desc: t('codeViewer.api.endpoints.1') },
+              { method: 'POST', path: '/api/v1/sensors/telemetry/ingest', desc: t('codeViewer.api.endpoints.2') },
+              { method: 'POST', path: '/api/v1/rl/infer-vri-rates', desc: t('codeViewer.api.endpoints.3') },
+              { method: 'POST', path: '/api/v1/irrigation/execute-decision', desc: t('codeViewer.api.endpoints.4') },
+              { method: 'POST', path: '/api/v1/digital-twin/what-if', desc: t('codeViewer.api.endpoints.5') },
+              { method: 'GET', path: '/api/v1/reports/export/{format}', desc: t('codeViewer.api.endpoints.6') },
+              { method: 'WS', path: '/ws/telemetry/{field_id}', desc: t('codeViewer.api.endpoints.7') }
             ].map((ep, i) => (
               <div key={i} className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -43,6 +43,7 @@ import {
   buildAgronomicSystemPrompt,
   queryGroqChat
 } from '../services/groqService';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AgronomicChatbotProps {
   field: AgriculturalField;
@@ -52,20 +53,6 @@ interface AgronomicChatbotProps {
   radarCells: WeatherRadarCell[];
 }
 
-const INITIAL_GREETING: ChatMessage = {
-  id: 'msg-welcome-01',
-  role: 'assistant',
-  content: '¡Hola! Soy tu **Asistente Agronómico de IA** conectado al Gemelo Digital VRI. Puedo responder tus dudas sobre el balance hídrico, recomendaciones PPO del agente RL, índices de estrés CWSI o lecturas del radar en tiempo real. Puedes escribirme o pulsar el **micrófono** para dictarme por voz.',
-  timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
-};
-
-const SUGGESTED_QUESTIONS = [
-  '¿Por qué se recomiendan 11.5 mm en Zona 4?',
-  '¿Cuál es el estado de estrés CWSI del cultivo?',
-  '¿Cómo influye la lluvia prevista del radar?',
-  '¿Cómo funciona la recalibración de ciclo cerrado?'
-];
-
 export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
   field,
   zones,
@@ -73,6 +60,7 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
   sensors,
   radarCells
 }) => {
+  const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
@@ -83,6 +71,20 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [showApiKey, setShowApiKey] = useState<boolean>(false);
   const [keySaveSuccess, setKeySaveSuccess] = useState<boolean>(false);
+
+  const INITIAL_GREETING: ChatMessage = useMemo(() => ({
+    id: 'msg-welcome-01',
+    role: 'assistant',
+    content: t('chatbot.welcome'),
+    timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
+  }), [t]);
+
+  const SUGGESTED_QUESTIONS = useMemo(() => [
+    t('chatbot.suggested.0'),
+    t('chatbot.suggested.1'),
+    t('chatbot.suggested.2'),
+    t('chatbot.suggested.3')
+  ], [t]);
 
   // Chat conversation
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_GREETING]);
@@ -98,6 +100,15 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
 
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Update messages state when welcome text changes (language switch)
+  useEffect(() => {
+    setMessages(prev => {
+      const first = prev[0];
+      if (!first || first.id !== 'msg-welcome-01') return prev;
+      return [INITIAL_GREETING, ...prev.slice(1)];
+    });
+  }, [INITIAL_GREETING]);
 
   // Initialize stored API Key & Model on mount
   useEffect(() => {
@@ -119,6 +130,8 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
     }
   }, [messages, isOpen, isMinimized]);
 
+  const speechLang = language === 'es' ? 'es-PE' : 'en-US';
+
   // Setup Speech Recognition (STT)
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -126,7 +139,7 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = 'es-PE';
+      recognition.lang = speechLang;
 
       recognition.onresult = (event: any) => {
         let transcript = '';
@@ -139,7 +152,7 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
       };
 
       recognition.onerror = (event: any) => {
-        console.warn('Error en reconocimiento de voz:', event.error);
+        console.warn(t('chatbot.stt.error'), event.error);
         setIsListening(false);
       };
 
@@ -149,12 +162,12 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
 
       recognitionRef.current = recognition;
     }
-  }, []);
+  }, [speechLang, t]);
 
   // Toggle Voice Dictation (Microphone)
   const toggleListening = () => {
     if (!recognitionRef.current) {
-      alert('Tu navegador no soporta la API de reconocimiento de voz. Intenta con Google Chrome o Microsoft Edge.');
+      alert(t('chatbot.alerts.sttNotSupported'));
       return;
     }
 
@@ -166,7 +179,7 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
         recognitionRef.current.start();
         setIsListening(true);
       } catch (err) {
-        console.error('Error al iniciar reconocimiento:', err);
+        console.error(t('chatbot.stt.startError'), err);
         setIsListening(false);
       }
     }
@@ -175,7 +188,7 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
   // Speech Synthesis (TTS: Read out loud)
   const speakMessage = (id: string, text: string) => {
     if (!('speechSynthesis' in window)) {
-      alert('Tu navegador no soporta síntesis de voz (Text-to-Speech).');
+      alert(t('chatbot.alerts.ttsNotSupported'));
       return;
     }
 
@@ -198,15 +211,16 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
       .trim();
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'es-PE';
+    utterance.lang = speechLang;
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
 
-    // Try to pick a natural Spanish voice
+    // Try to pick a natural voice
     const voices = window.speechSynthesis.getVoices();
-    const esVoice = voices.find(v => v.lang.includes('es-PE') || v.lang.includes('es-ES') || v.lang.startsWith('es'));
-    if (esVoice) {
-      utterance.voice = esVoice;
+    const langCode = language === 'es' ? 'es' : 'en';
+    const matchedVoice = voices.find(v => v.lang.includes(langCode));
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
     }
 
     utterance.onstart = () => {
@@ -257,7 +271,7 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
     // Check for API key
     if (!apiKey) {
       setIsSettingsOpen(true);
-      setErrorBanner('Por favor configura tu API Key de Groq para habilitar el asistente.');
+      setErrorBanner(t('chatbot.errors.apiKeyMissing'));
       return;
     }
 
@@ -308,9 +322,9 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
       console.error(err);
       if (err?.message === 'API_KEY_MISSING') {
         setIsSettingsOpen(true);
-        setErrorBanner('Se requiere una clave API de Groq válida.');
+        setErrorBanner(t('chatbot.errors.invalidKey'));
       } else {
-        setErrorBanner(err?.message || 'Error al conectar con el servicio de Groq.');
+        setErrorBanner(err?.message || t('chatbot.errors.connection'));
       }
     } finally {
       setIsLoading(false);

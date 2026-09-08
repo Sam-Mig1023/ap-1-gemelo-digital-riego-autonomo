@@ -21,6 +21,7 @@ import {
   WeatherRadarCell, 
   RLDecision 
 } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FieldGISMapProps {
   field: AgriculturalField;
@@ -47,6 +48,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
   onTriggerIrrigation,
   systemMode
 }) => {
+  const { t } = useLanguage();
   const [activeLayer, setActiveLayer] = useState<MapLayerMode>('cwsi');
   const [pivotAngle, setPivotAngle] = useState<number>(45);
   const [isPivotRotating, setIsPivotRotating] = useState<boolean>(true);
@@ -96,7 +98,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
         
         <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Estrés Hídrico (CWSI)</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">{t('gisMap.kpis.cwsi')}</span>
             <Thermometer className={`w-4 h-4 ${avgCwsi > 0.45 ? 'text-amber-400' : 'text-emerald-400'}`} />
           </div>
           <div className="mt-1 flex items-baseline gap-2">
@@ -104,7 +106,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
             <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded ${
               avgCwsi > 0.45 ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300' : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
             }`}>
-              {avgCwsi > 0.45 ? 'Estrés Moderado' : 'Óptimo'}
+              {avgCwsi > 0.45 ? t('gisMap.kpis.moderateStress') : t('gisMap.kpis.optimal')}
             </span>
           </div>
           <div className="mt-1.5 w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
@@ -117,50 +119,50 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
 
         <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Demanda VRI (RL)</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">{t('gisMap.kpis.vriDemand')}</span>
             <Droplets className="w-4 h-4 text-blue-400" />
           </div>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="text-xl sm:text-2xl font-bold text-blue-500 dark:text-blue-400">{totalWaterDemandM3.toLocaleString()}</span>
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">m³ neto</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">{t('gisMap.kpis.netCubic')}</span>
           </div>
-          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">4 zonas de manejo activas</p>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{t('gisMap.kpis.activeZones')}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Ahorro Hídrico Temporada</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">{t('gisMap.kpis.waterSaved')}</span>
             <Sparkles className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="text-xl sm:text-2xl font-bold text-emerald-500 dark:text-emerald-400">{field.waterSavedM3Season.toLocaleString()}</span>
             <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">m³ (-28.4%)</span>
           </div>
-          <p className="text-[11px] text-emerald-700 dark:text-emerald-400/80 mt-1">Vs. Riego por calendario tradicional</p>
+          <p className="text-[11px] text-emerald-700 dark:text-emerald-400/80 mt-1">{t('gisMap.kpis.vsCalendar')}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Ahorro Energía Bombeo</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">{t('gisMap.kpis.energySaved')}</span>
             <Zap className="w-4 h-4 text-amber-400" />
           </div>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="text-xl sm:text-2xl font-bold text-amber-500 dark:text-amber-400">{field.energySavedKwhSeason.toLocaleString()}</span>
             <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">kWh</span>
           </div>
-          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Tarifa optimizada en horario valle</p>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{t('gisMap.kpis.optimizedTariff')}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl col-span-2 sm:col-span-1 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Radar Lluvia Prevista 24h</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">{t('gisMap.kpis.forecastRain')}</span>
             <CloudRain className="w-4 h-4 text-purple-400" />
           </div>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-300">3.4 mm</span>
             <span className="text-xs text-purple-600 dark:text-purple-400 font-semibold">22 dBZ</span>
           </div>
-          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Descontado automáticamente por RL</p>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{t('gisMap.kpis.autoDiscounted')}</p>
         </div>
 
       </div>
@@ -175,15 +177,15 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 mr-1 flex items-center gap-1">
               <Layers className="w-3.5 h-3.5 text-emerald-400" />
-              Capa Visual:
+              {t('gisMap.layerLabel')}
             </span>
 
             {[
-              { id: 'cwsi', label: 'Estrés CWSI (Termografía)', color: 'text-red-400' },
-              { id: 'moisture', label: 'Humedad Suelo (10-30cm)', color: 'text-blue-400' },
-              { id: 'vri_rate', label: 'Dosis Recomendada RL (mm)', color: 'text-emerald-400' },
-              { id: 'radar', label: 'Radar Meteorológico (dBZ)', color: 'text-purple-400' },
-              { id: 'soil_texture', label: 'Textura & Hidráulica', color: 'text-amber-400' },
+              { id: 'cwsi', label: t('gisMap.layers.cwsi'), color: 'text-red-400' },
+              { id: 'moisture', label: t('gisMap.layers.moisture'), color: 'text-blue-400' },
+              { id: 'vri_rate', label: t('gisMap.layers.vriRate'), color: 'text-emerald-400' },
+              { id: 'radar', label: t('gisMap.layers.radar'), color: 'text-purple-400' },
+              { id: 'soil_texture', label: t('gisMap.layers.soilTexture'), color: 'text-amber-400' },
             ].map((layer) => (
               <button
                 key={layer.id}
@@ -207,7 +209,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
               className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 transition-all"
             >
               <RotateCw className={`w-3 h-3 ${isPivotRotating ? 'animate-spin' : ''}`} />
-              <span>{isPivotRotating ? 'Pausar Pivot' : 'Girar Pivot'}</span>
+              <span>{isPivotRotating ? t('gisMap.pausePivot') : t('gisMap.rotatePivot')}</span>
             </button>
           </div>
 
@@ -296,16 +298,16 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
               )}
 
               {/* Sector Labels - white for dark contrast on colored zones */}
-              <text x="160" y="150" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 1 (NO)</text>
+              <text x="160" y="150" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">{t('gisMap.zoneLabels.nw')}</text>
               <text x="160" y="168" fill="#f1f5f9" fontSize="10" textAnchor="middle">H: {zones[0].currentMoisture10cm}% | {zones[0].recommendedRateMm}mm</text>
 
-              <text x="340" y="150" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 2 (NE)</text>
+              <text x="340" y="150" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">{t('gisMap.zoneLabels.ne')}</text>
               <text x="340" y="168" fill="#f1f5f9" fontSize="10" textAnchor="middle">H: {zones[1].currentMoisture10cm}% | {zones[1].recommendedRateMm}mm</text>
 
-              <text x="160" y="340" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 3 (SO)</text>
+              <text x="160" y="340" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">{t('gisMap.zoneLabels.sw')}</text>
               <text x="160" y="358" fill="#f1f5f9" fontSize="10" textAnchor="middle">H: {zones[2].currentMoisture10cm}% | {zones[2].recommendedRateMm}mm</text>
 
-              <text x="340" y="340" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 4 (SE)</text>
+              <text x="340" y="340" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">{t('gisMap.zoneLabels.se')}</text>
               <text x="340" y="358" fill="#f1f5f9" fontSize="10" textAnchor="middle">H: {zones[3].currentMoisture10cm}% | {zones[3].recommendedRateMm}mm</text>
 
               {/* Rotating Pivot Arm */}
@@ -356,7 +358,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
             {/* Pivot Status Overlay Tag */}
             <div className="absolute bottom-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 flex items-center gap-2 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>Pivot Central: Sector {Math.floor(pivotAngle / 45) + 1} ({Math.round(pivotAngle)}°)</span>
+              <span>{t('gisMap.pivotSector', { sector: Math.floor(pivotAngle / 45) + 1, angle: Math.round(pivotAngle) })}</span>
             </div>
 
           </div>
@@ -371,7 +373,13 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white">{selectedZone.name}</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-400">
-                      Textura: {selectedZone.soilTexture === 'sandy_loam' ? 'Franco arenosa' : selectedZone.soilTexture === 'silt_loam' ? 'Franco limosa' : selectedZone.soilTexture === 'clay_loam' ? 'Franco arcillosa' : selectedZone.soilTexture.replace('_', ' ')} • {selectedZone.areaHectares} Ha
+                      {t('gisMap.zoneProfile.soilAndArea', {
+                        texture: selectedZone.soilTexture === 'sandy_loam' ? t('gisMap.soil.sandyLoam') :
+                                 selectedZone.soilTexture === 'silt_loam' ? t('gisMap.soil.siltLoam') :
+                                 selectedZone.soilTexture === 'clay_loam' ? t('gisMap.soil.clayLoam') :
+                                 selectedZone.soilTexture.replace('_', ' '),
+                        area: selectedZone.areaHectares
+                      })}
                     </p>
                   </div>
                   <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${
@@ -381,20 +389,22 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                       ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40'
                       : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40'
                   }`}>
-                    {selectedZone.status === 'severe_stress' ? 'Estrés Severo' : selectedZone.status === 'mild_stress' ? 'Estrés Leve' : 'Óptimo'}
+                    {selectedZone.status === 'severe_stress' ? t('gisMap.status.severeStress') :
+                     selectedZone.status === 'mild_stress' ? t('gisMap.status.mildStress') :
+                     t('gisMap.status.optimal')}
                   </span>
                 </div>
 
                 {/* Soil Profile Multi-depth Readout */}
                 <div className="space-y-2 bg-white dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
                   <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                    <span>Humedad Volumétrica (Sondas TDR)</span>
+                    <span>{t('gisMap.zoneProfile.volumetricMoisture')}</span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-400">CC: {(selectedZone.fieldCapacity * 100).toFixed(0)}% | PMP: {(selectedZone.wiltingPoint * 100).toFixed(0)}%</span>
                   </div>
                   
                   <div className="space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Horizonte 10cm (Superficial):</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('gisMap.zoneProfile.horizons.superficial')}</span>
                       <span className="font-mono font-bold text-slate-900 dark:text-white">{selectedZone.currentMoisture10cm}%</span>
                     </div>
                     <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
@@ -402,7 +412,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Horizonte 30cm (Bulbo radicular):</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('gisMap.zoneProfile.horizons.root')}</span>
                       <span className="font-mono font-bold text-slate-900 dark:text-white">{selectedZone.currentMoisture30cm}%</span>
                     </div>
                     <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
@@ -410,7 +420,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Horizonte 60cm (Subsuelo):</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('gisMap.zoneProfile.horizons.subsurface')}</span>
                       <span className="font-mono font-bold text-slate-900 dark:text-white">{selectedZone.currentMoisture60cm}%</span>
                     </div>
                     <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
@@ -422,12 +432,12 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                 {/* Thermal & Physical Parameters */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-white dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800/80">
-                    <span className="text-slate-600 dark:text-slate-400 block text-[11px]">Temp Dosel IRT:</span>
+                    <span className="text-slate-600 dark:text-slate-400 block text-[11px]">{t('gisMap.zoneProfile.irtTemp')}</span>
                     <span className="text-sm font-bold text-amber-600 dark:text-amber-300">{selectedZone.currentCanopyTemp}°C</span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-500 block">Amb: {selectedZone.ambientTemp}°C</span>
                   </div>
                   <div className="bg-white dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800/80">
-                    <span className="text-slate-600 dark:text-slate-400 block text-[11px]">Conductividad Ksat:</span>
+                    <span className="text-slate-600 dark:text-slate-400 block text-[11px]">{t('gisMap.zoneProfile.ksat')}</span>
                     <span className="text-sm font-bold text-teal-600 dark:text-teal-300">{selectedZone.saturatedK} mm/h</span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-500 block">Green-Ampt</span>
                   </div>
@@ -438,16 +448,22 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                       <Zap className="w-3.5 h-3.5" />
-                      Prescripción PPO RL:
+                      {t('gisMap.zoneProfile.ppoPrescription')}
                     </span>
                     <span className="text-xs font-mono font-bold text-emerald-800 dark:text-white bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">
                       {selectedZone.recommendedRateMm} mm
                     </span>
                   </div>
                   
-                  <p className="text-[11px] text-slate-700 dark:text-slate-300">
-                    Volumen prescrito: <strong className="text-slate-900 dark:text-white font-mono">{Math.round((selectedZone.recommendedRateMm / 1000) * selectedZone.areaHectares * 10000)} m³</strong> para {selectedZone.areaHectares} Ha.
-                  </p>
+                  <p
+                    className="text-[11px] text-slate-700 dark:text-slate-300"
+                    dangerouslySetInnerHTML={{
+                      __html: t('gisMap.zoneProfile.prescribedVolume', {
+                        volume: Math.round((selectedZone.recommendedRateMm / 1000) * selectedZone.areaHectares * 10000),
+                        area: selectedZone.areaHectares
+                      })
+                    }}
+                  />
 
                   <button
                     id="execute-zone-irrigation-btn"
@@ -455,7 +471,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                     className="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-950/40 dark:shadow-emerald-900/30"
                   >
                     <Play className="w-3.5 h-3.5" />
-                    <span>Aplicar Dosis VRI ({selectedZone.recommendedRateMm} mm)</span>
+                    <span>{t('gisMap.zoneProfile.applyDose', { dose: selectedZone.recommendedRateMm })}</span>
                   </button>
                 </div>
 
@@ -463,8 +479,8 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
             ) : (
               <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-xl border border-slate-200 dark:border-slate-800 text-center space-y-2 shadow-sm">
                 <Info className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto" />
-                <p className="text-xs font-medium text-slate-700 dark:text-slate-300">Selecciona una zona en el mapa GIS</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-500">Haz clic sobre cualquier cuadrante del pivot para ver su perfil hidráulico, sensores IRT y recomendación RL.</p>
+                <p className="text-xs font-medium text-slate-700 dark:text-slate-300">{t('gisMap.zoneProfile.selectZoneTitle')}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-500">{t('gisMap.zoneProfile.selectZoneDesc')}</p>
               </div>
             )}
           </div>

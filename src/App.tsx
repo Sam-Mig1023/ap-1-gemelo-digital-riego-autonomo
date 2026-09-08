@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from './contexts/ThemeContext';
+import { useLanguage } from './contexts/LanguageContext';
 import {
   INITIAL_FIELD,
   INITIAL_ZONES,
@@ -37,6 +38,7 @@ import { AgronomicChatbot } from './components/AgronomicChatbot';
 
 export default function App() {
   useTheme();
+  const { t } = useLanguage();
   const [field, setField] = useState<AgriculturalField>(INITIAL_FIELD);
   const [zones, setZones] = useState<ManagementZone[]>(INITIAL_ZONES);
   const [sensors, setSensors] = useState<SensorTelemetry[]>(INITIAL_SENSORS);
@@ -101,13 +103,13 @@ export default function App() {
     if (!isOnline) {
       // Replay offline queue
       if (offlineQueue.length > 0) {
-        showToast(`Sincronización completada: ${offlineQueue.length} acciones locales sincronizadas con TimescaleDB.`);
+        showToast(t('app.toast.syncComplete', { count: offlineQueue.length }));
         setOfflineQueue([]);
       }
       setIsOnline(true);
     } else {
       setIsOnline(false);
-      showToast('Modo Rural Offline activado: Los datos y aprobaciones se almacenarán localmente.');
+      showToast(t('app.toast.offlineActivated'));
     }
   };
 
@@ -121,7 +123,7 @@ export default function App() {
         queuedAt: new Date().toISOString(),
         synced: false
       }]);
-      showToast('Decisión aprobada en cola local (Offline). Se sincronizará al recuperar señal.');
+      showToast(t('app.toast.approvedOffline'));
     }
 
     setDecisions(prev => prev.map(d => {
@@ -142,7 +144,7 @@ export default function App() {
       `RLDecision/${decisionId} (${dec?.zoneName})`,
       `Aprobada dosis de ${dec?.recommendedDepthMm} mm. Ventana ${dec?.executionWindowHours.start}-${dec?.executionWindowHours.end}.`
     );
-    showToast(`Decisión ${decisionId} aprobada para ejecución en el pivot central.`);
+    showToast(t('app.toast.decisionApproved', { id: decisionId }));
   };
 
   // Manual Override
@@ -175,7 +177,7 @@ export default function App() {
       `RLDecision/${decisionId} (${selectedZone.name})`,
       `Dosis modificada manualmente a ${customDepthMm} mm. Motivo: ${reason}`
     );
-    showToast(`Anulación manual aplicada: ${customDepthMm} mm en ${selectedZone.name}.`);
+    showToast(t('app.toast.manualOverrideApplied', { depth: customDepthMm, zone: selectedZone.name }));
   };
 
   // Re-infer all zones with PPO RL Agent
@@ -194,7 +196,7 @@ export default function App() {
       `AgriculturalField/${field.id}`,
       'Inferencia de política PPO-VRI ejecutada sobre las 4 zonas de manejo.'
     );
-    showToast('Inferencia de política PPO completada para todas las zonas.');
+    showToast(t('app.toast.ppoInferenceComplete'));
   };
 
   // Direct trigger of irrigation from GIS Map
@@ -218,7 +220,7 @@ export default function App() {
       `ManagementZone/${zoneId}`,
       `Aplicación de ${depthMm} mm iniciada en boquillas del pivot central.`
     );
-    showToast(`Riego VRI de ${depthMm} mm despachado a ${zone.name}.`);
+    showToast(t('app.toast.irrigationDispatched', { depth: depthMm, zone: zone.name }));
 
     // Prepare decision for feedback evaluation
     const matchingDec = decisions.find(d => d.zoneId === zoneId) || decisions[0];
@@ -241,7 +243,7 @@ export default function App() {
       `SoilHydraulics/${updatedZone.id}`,
       `Calibración post-riego aplicada. Ksat actualizado a ${updatedZone.saturatedK} mm/h (Ajuste: ${feedback.ksatAdjustmentPct}%).`
     );
-    showToast(`Recalibración de ciclo cerrado guardada en TimescaleDB para ${updatedZone.name}.`);
+    showToast(t('app.toast.recalibrationSaved', { zone: updatedZone.name }));
   };
 
   return (
@@ -367,7 +369,7 @@ export default function App() {
         {/* Footer */}
         <footer className="border-t border-slate-200 dark:border-slate-900 bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 py-4 px-6 text-center text-xs">
           <p>
-            Gemelo Digital de Ciclo Cerrado para Riego Autónomo de Tasa Variable (VRI) • Fusión de Humedad del Suelo, IRT de Dosel y Radar Meteorológico con RL PPO
+            {t('app.footer')}
           </p>
         </footer>
 

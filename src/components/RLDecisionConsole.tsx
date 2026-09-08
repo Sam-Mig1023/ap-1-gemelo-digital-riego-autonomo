@@ -24,6 +24,7 @@ import {
   UserRole 
 } from '../types';
 import { buildObservationTensor, computeRLReward } from '../services/rlAgentEngine';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface RLDecisionConsoleProps {
   zones: ManagementZone[];
@@ -50,6 +51,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
   onRecomputeAllRL,
   onTriggerFeedbackModal
 }) => {
+  const { t } = useLanguage();
   const [selectedDecisionId, setSelectedDecisionId] = useState<string>(decisions[0]?.id || '');
   const [overrideModalOpen, setOverrideModalOpen] = useState<boolean>(false);
   const [overrideDepthMm, setOverrideDepthMm] = useState<number>(5.0);
@@ -87,14 +89,14 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                Agente de Aprendizaje por Refuerzo (PPO-VRI Dual-Reward)
+                {t('rlConsole.title')}
               </h2>
               <span className="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                Modelo Activo: v4.2.8
+                {t('rlConsole.modelActive')}
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-              Espacio de estados continuo (12 características fusionadas) • Espacio de acciones: Dosis de riego por sector [0 - 25 mm]
+              {t('rlConsole.subtitle')}
             </p>
           </div>
         </div>
@@ -107,7 +109,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
             className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-medium border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Re-inferir Políticas</span>
+            <span>{t('rlConsole.reinfer')}</span>
           </button>
         </div>
       </div>
@@ -122,7 +124,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5 text-emerald-400" />
-                Tensor de Observación Fusionado
+                {t('rlConsole.observationTensor')}
               </span>
               <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
                 Shape: [4, 12]
@@ -132,43 +134,43 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
             <div className="space-y-2 text-xs font-mono">
               
               <div className="bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Perfil Humedad [10, 30, 60cm]:</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('rlConsole.moistureProfile')}</span>
                 <span className="text-emerald-400 font-bold">
                   [{observation.soilMoistureProfile.join('%, ')}%]
                 </span>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Temp Dosel (Kelvin):</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('rlConsole.canopyTemp')}</span>
                 <span className="text-amber-300 font-bold">{observation.canopyTempKelvin} K ({relatedZone.currentCanopyTemp}°C)</span>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
-                <span className="text-slate-600 dark:text-slate-400">VPD Déficit Presión Vapor:</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('rlConsole.vpd')}</span>
                 <span className="text-slate-900 dark:text-white font-bold">{observation.vaporPressureDeficitKPa} kPa</span>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Índice CWSI Estrés:</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('rlConsole.cwsiIndex')}</span>
                 <span className={`font-bold ${observation.cwsi > 0.45 ? 'text-rose-400' : 'text-emerald-400'}`}>
                   {observation.cwsi}
                 </span>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Demanda Evaporativa ETc:</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('rlConsole.etcDemand')}</span>
                 <span className="text-blue-300 font-bold">{observation.etcMmDay} mm/día</span>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Radar Precipitación 24h:</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('rlConsole.radarRain')}</span>
                 <span className="text-purple-300 font-bold">{observation.forecastRain24hMm} mm ({observation.radarEchoIntensity} dBZ)</span>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Tarifa Eléctrica (Horario):</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('rlConsole.tariff')}</span>
                 <span className="text-yellow-300 font-bold">
-                  {observation.electricityTariffTier === 1 ? 'Nivel 1 (Valle Económico)' : 'Nivel 2 (Medio)'}
+                  {observation.electricityTariffTier === 1 ? t('rlConsole.tariffLow') : t('rlConsole.tariffMid')}
                 </span>
               </div>
 
@@ -180,7 +182,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <BarChart3 className="w-3.5 h-3.5 text-blue-400" />
-                Descomposición de Recompensa (R_t)
+                {t('rlConsole.rewardDecomposition')}
               </span>
               <span className="text-xs font-mono font-bold text-emerald-400">
                 {rewardBreakdown.totalReward} pts
@@ -189,19 +191,19 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
 
             <div className="space-y-2 text-xs">
               <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                <span>Penalidad Estrés Hídrico (-w1 * CWSI^1.8):</span>
+                <span>{t('rlConsole.stressPenalty')}</span>
                 <span className="font-mono text-rose-400">{rewardBreakdown.stressPenalty} pts</span>
               </div>
               <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                <span>Consumo de Agua (-w2 * Volumen):</span>
+                <span>{t('rlConsole.waterPenalty')}</span>
                 <span className="font-mono text-amber-400">{rewardBreakdown.waterConsumptionPenalty} pts</span>
               </div>
               <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                <span>Penalidad Sobre-Riego (-w3 * Drenaje):</span>
+                <span>{t('rlConsole.overIrrigationPenalty')}</span>
                 <span className="font-mono text-blue-400">{rewardBreakdown.overIrrigationPenalty} pts</span>
               </div>
               <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                <span>Costo Energético (-w4 * Tarifa):</span>
+                <span>{t('rlConsole.energyPenalty')}</span>
                 <span className="font-mono text-purple-400">{rewardBreakdown.energyCostPenalty} pts</span>
               </div>
             </div>
@@ -217,10 +219,10 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                Cola de Decisiones por Zona de Manejo
+                {t('rlConsole.decisionQueue')}
               </span>
               <span className="text-xs text-slate-600 dark:text-slate-400">
-                Modo: <strong className="text-slate-900 dark:text-white">{systemMode === 'assisted' ? 'Asistido' : systemMode === 'manual' ? 'Manual' : systemMode === 'autonomous' ? 'Autónomo' : systemMode}</strong>
+                {t('rlConsole.systemMode')} <strong className="text-slate-900 dark:text-white">{systemMode === 'assisted' ? t('rlConsole.modeAssisted') : systemMode === 'manual' ? t('rlConsole.modeManual') : systemMode === 'autonomous' ? t('rlConsole.modeAutonomous') : systemMode}</strong>
               </span>
             </div>
 
@@ -248,7 +250,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                           ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
                           : 'bg-slate-500/20 text-slate-300 border-slate-500/40'
                       }`}>
-                        {dec.status === 'approved' ? 'APROBADA' : dec.status === 'pending' ? 'PENDIENTE' : dec.status === 'feedback_verified' ? 'VERIFICADA' : dec.status.toUpperCase()}
+                        {dec.status === 'approved' ? t('rlConsole.statusApproved') : dec.status === 'pending' ? t('rlConsole.statusPending') : dec.status === 'feedback_verified' ? t('rlConsole.statusVerified') : dec.status.toUpperCase()}
                       </span>
                     </div>
 
@@ -261,9 +263,9 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                       </div>
                       <div className="text-right">
                         <span className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
-                          Confianza: {Math.round(dec.confidenceScore * 100)}%
+                          {t('rlConsole.confidence')} {Math.round(dec.confidenceScore * 100)}%
                         </span>
-                        <p className="text-[10px] text-slate-500">Ventana: {dec.executionWindowHours.start} - {dec.executionWindowHours.end}</p>
+                        <p className="text-[10px] text-slate-500">{t('rlConsole.window')} {dec.executionWindowHours.start} - {dec.executionWindowHours.end}</p>
                       </div>
                     </div>
                   </div>
@@ -279,10 +281,10 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>Explicabilidad de Decisión (IA Explicable / Valores SHAP): {selectedDecision.zoneName}</span>
+                    <span>{t('rlConsole.explainability', { zone: selectedDecision.zoneName })}</span>
                   </h3>
                   <p className="text-xs text-emerald-400/90 mt-0.5">
-                    Característica dominante: {selectedDecision.explanation.dominantFeature}
+                    {t('rlConsole.dominantFeature', { feature: selectedDecision.explanation.dominantFeature })}
                   </p>
                 </div>
 
@@ -301,7 +303,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                         }`}
                       >
                         <ThumbsUp className="w-3.5 h-3.5" />
-                        <span>Aprobar Riego</span>
+                        <span>{t('rlConsole.approveIrrigation')}</span>
                       </button>
 
                       <button
@@ -310,7 +312,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                         className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-medium border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all"
                       >
                         <Edit3 className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Anulación Manual</span>
+                        <span>{t('rlConsole.manualOverride')}</span>
                       </button>
                     </>
                   )}
@@ -322,7 +324,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                       className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-md shadow-blue-950/40"
                     >
                       <FileCheck2 className="w-3.5 h-3.5" />
-                      <span>Verificar Retroalimentación Post-Riego (60 min)</span>
+                      <span>{t('rlConsole.verifyFeedback')}</span>
                     </button>
                   )}
                 </div>
@@ -331,7 +333,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
               {/* SHAP Feature Impact Bars */}
               <div className="space-y-3">
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">
-                  Contribución Relativa al Vector de Acción (Pesos de Fuerza SHAP):
+                  {t('rlConsole.shapContribution')}
                 </span>
 
                 <div className="space-y-2.5">
@@ -354,7 +356,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
 
               {/* Natural Language Reasoning from RL */}
               <div className="bg-emerald-950/20 border border-emerald-500/30 p-3 rounded-lg text-xs text-slate-700 dark:text-slate-300">
-                <p className="font-semibold text-emerald-300 mb-1">Fundamento Bio-Físico y Optimización:</p>
+                <p className="font-semibold text-emerald-300 mb-1">{t('rlConsole.biophysicalReasoning')}</p>
                 <p>{selectedDecision.explanation.reasoningText}</p>
               </div>
 
@@ -363,7 +365,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                 <div className="bg-rose-950/30 border border-rose-500/40 p-3 rounded-lg flex items-start gap-2.5 text-xs text-rose-300">
                   <ShieldAlert className="w-4 h-4 text-rose-400 mt-0.5 flex-shrink-0" />
                   <div>
-                    <strong className="block text-rose-200 font-semibold">Modo Seguro Activado por Salvaguardas:</strong>
+                    <strong className="block text-rose-200 font-semibold">{t('rlConsole.safeModeOn')}</strong>
                     <span>{selectedDecision.explanation.safeModeReason}</span>
                   </div>
                 </div>
@@ -383,7 +385,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-amber-400" />
-                <span>Anulación Manual de Dosis VRI</span>
+                <span>{t('rlConsole.overrideTitle')}</span>
               </h3>
               <button
                 onClick={() => setOverrideModalOpen(false)}
@@ -395,12 +397,12 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-600 dark:text-slate-400 mb-1">Dosis Prescrita por RL:</label>
+                <label className="block text-slate-600 dark:text-slate-400 mb-1">{t('rlConsole.prescribedDose')}</label>
                 <span className="font-mono text-sm font-bold text-emerald-400">{selectedDecision?.recommendedDepthMm} mm</span>
               </div>
 
               <div>
-                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Nueva Dosis Manual (mm):</label>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">{t('rlConsole.newDose')}</label>
                 <input
                   type="number"
                   min="0"
@@ -413,13 +415,13 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
               </div>
 
               <div>
-                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Justificación Obligatoria para Auditoría:</label>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">{t('rlConsole.justification')}</label>
                 <textarea
                   rows={3}
                   value={overrideReason}
                   onChange={(e) => setOverrideReason(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
-                  placeholder="Explique el motivo agronómico o de campo..."
+                  placeholder={t('rlConsole.justificationPlaceholder')}
                 />
               </div>
             </div>
@@ -429,14 +431,14 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                 onClick={() => setOverrideModalOpen(false)}
                 className="px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               >
-                Cancelar
+                {t('common.cancel')}
               </button>
               <button
                 id="confirm-override-submit-btn"
                 onClick={handleConfirmOverride}
                 className="px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-md shadow-amber-950/40"
               >
-                Confirmar y Registrar en Auditoría
+                {t('rlConsole.confirmAndLog')}
               </button>
             </div>
           </div>

@@ -26,6 +26,7 @@ import {
   generateCSVExport, 
   generateJSONExport 
 } from '../services/reportGenerators';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ReportExportStudioProps {
   field: AgriculturalField;
@@ -46,6 +47,7 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
   scheduledReports,
   currentUserName
 }) => {
+  const { t } = useLanguage();
   const [isExporting, setIsExporting] = useState<string | null>(null);
   const [scheduledList, setScheduledList] = useState<ScheduledReport[]>(scheduledReports);
   const [notificationMsg, setNotificationMsg] = useState<string | null>(null);
@@ -73,10 +75,10 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
       } else if (format === 'json') {
         generateJSONExport(payload);
       }
-      setNotificationMsg(`Reporte en formato ${format.toUpperCase()} generado y descargado exitosamente.`);
+      setNotificationMsg(t('reports.generateSuccess', { format: format.toUpperCase() }));
     } catch (err) {
       console.error(err);
-      setNotificationMsg(`Error al generar reporte: ${String(err)}`);
+      setNotificationMsg(t('reports.generateError', { error: String(err) }));
     } finally {
       setIsExporting(null);
       setTimeout(() => setNotificationMsg(null), 4500);
@@ -84,7 +86,7 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
   };
 
   const handleTriggerDispatch = (report: ScheduledReport) => {
-    setNotificationMsg(`Tarea Celery encolada: Envío programado "${report.title}" despachado a ${report.recipients.join(', ')}.`);
+    setNotificationMsg(t('reports.dispatchQueued', { title: report.title, recipients: report.recipients.join(', ') }));
     setTimeout(() => setNotificationMsg(null), 4500);
   };
 
@@ -99,10 +101,10 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-              Módulo de Reportes Ejecutivos & Exportación de Datos
+              {t('reports.title')}
             </h2>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-              Generación de documentos ejecutivos (PDF/Word/Excel) y automatización con Celery Beat
+              {t('reports.subtitle')}
             </p>
           </div>
         </div>
@@ -124,9 +126,9 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
             <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center">
               <FileText className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Informe Ejecutivo PDF</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t('reports.exports.pdf.title')}</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Documento formal para gerencia y propietarios con tablas de balance hídrico, ahorro en m³, métricas de estrés y firmas.
+              {t('reports.exports.pdf.desc')}
             </p>
           </div>
 
@@ -137,7 +139,7 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
             className="w-full py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-md shadow-rose-950/40"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{isExporting === 'pdf' ? 'Generando...' : 'Descargar PDF'}</span>
+            <span>{isExporting === 'pdf' ? `${t('common.loading')}...` : t('reports.exports.pdf.download')}</span>
           </button>
         </div>
 
@@ -147,9 +149,9 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
             <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center">
               <FileCheck className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Informe Técnico Word (.docx)</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t('reports.exports.docx.title')}</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Documento editable para agrónomos y asesores técnicos, con capítulos de análisis bio-físico, justificación del modelo RL y firmas.
+              {t('reports.exports.docx.desc')}
             </p>
           </div>
 
@@ -160,7 +162,7 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
             className="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-950/40"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{isExporting === 'docx' ? 'Generando...' : 'Descargar Word (.docx)'}</span>
+            <span>{isExporting === 'docx' ? `${t('common.loading')}...` : t('reports.exports.docx.download')}</span>
           </button>
         </div>
 
@@ -170,9 +172,9 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
             <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Libro de Datos Excel (.xlsx)</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t('reports.exports.xlsx.title')}</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Libro multi-pestaña: Resumen Campo, Zonas de Manejo, Telemetría Cruda, Registro de Decisiones RL y Auditoría RBAC.
+              {t('reports.exports.xlsx.desc')}
             </p>
           </div>
 
@@ -183,7 +185,7 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
             className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-950/40"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{isExporting === 'xlsx' ? 'Generando...' : 'Descargar Excel (.xlsx)'}</span>
+            <span>{isExporting === 'xlsx' ? `${t('common.loading')}...` : t('reports.exports.xlsx.download')}</span>
           </button>
         </div>
 
@@ -193,9 +195,9 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
             <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
               <Layers className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Exportación Cruda (CSV / JSON)</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t('reports.exports.raw.title')}</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Exportación masiva de series temporales de sensores y estado del Gemelo Digital para analítica externa en R o Python.
+              {t('reports.exports.raw.desc')}
             </p>
           </div>
 
@@ -226,10 +228,10 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Programación de Reportes Automáticos (Proceso Celery Beat)</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t('reports.scheduled.title')}</h3>
           </div>
           <span className="text-xs text-slate-600 dark:text-slate-400">
-            Despacho asíncrono vía trabajadores Redis/Celery
+            {t('reports.scheduled.subtitle')}
           </span>
         </div>
 
@@ -237,13 +239,13 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th className="p-3">Título del Reporte</th>
-                <th className="p-3">Formato</th>
-                <th className="p-3">Frecuencia</th>
-                <th className="p-3">Destinatarios</th>
-                <th className="p-3">Último Despacho</th>
-                <th className="p-3">Estado</th>
-                <th className="p-3">Acción Inmediata</th>
+                <th className="p-3">{t('reports.scheduled.columns.title')}</th>
+                <th className="p-3">{t('reports.scheduled.columns.format')}</th>
+                <th className="p-3">{t('reports.scheduled.columns.frequency')}</th>
+                <th className="p-3">{t('reports.scheduled.columns.recipients')}</th>
+                <th className="p-3">{t('reports.scheduled.columns.lastDispatch')}</th>
+                <th className="p-3">{t('reports.scheduled.columns.status')}</th>
+                <th className="p-3">{t('reports.scheduled.columns.action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -256,7 +258,10 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
                     </span>
                   </td>
                   <td className="p-3 capitalize text-slate-700 dark:text-slate-300">
-                    {rep.frequency === 'daily' ? 'Diario' : rep.frequency === 'weekly' ? 'Semanal' : rep.frequency === 'monthly' ? 'Mensual' : rep.frequency.replace('_', ' ')}
+                    {rep.frequency === 'daily' ? t('reports.scheduled.frequencies.daily') :
+                     rep.frequency === 'weekly' ? t('reports.scheduled.frequencies.weekly') :
+                     rep.frequency === 'monthly' ? t('reports.scheduled.frequencies.monthly') :
+                     rep.frequency.replace('_', ' ')}
                   </td>
                   <td className="p-3 text-slate-600 dark:text-slate-400 font-mono text-[11px]">
                     {rep.recipients.join(', ')}
@@ -264,7 +269,7 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
                   <td className="p-3 font-mono text-slate-600 dark:text-slate-400">{rep.lastGenerated}</td>
                   <td className="p-3">
                     <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">
-                      {rep.status === 'active' ? 'ACTIVO' : rep.status.toUpperCase()}
+                      {rep.status === 'active' ? t('reports.scheduled.statusActive') : rep.status.toUpperCase()}
                     </span>
                   </td>
                   <td className="p-3">
@@ -273,7 +278,7 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
                       className="px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-medium border border-slate-300 dark:border-slate-700 flex items-center gap-1 transition-all"
                     >
                       <Send className="w-3 h-3 text-emerald-400" />
-                      <span>Despachar Ahora</span>
+                      <span>{t('reports.scheduled.columns.dispatch')}</span>
                     </button>
                   </td>
                 </tr>

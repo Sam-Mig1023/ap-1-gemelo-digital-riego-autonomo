@@ -10,6 +10,7 @@ import {
   X,
   ChevronRight
 } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -18,30 +19,31 @@ interface SidebarProps {
   onTabChange: (tab: string) => void;
 }
 
-const NAV_ITEMS: Array<{
-  id: string;
-  label: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-}> = [
-  { id: 'gis-map', label: '1. Gemelo Digital & Mapa GIS', icon: Layers, description: 'Vista central del campo agrícola' },
-  { id: 'rl-engine', label: '2. Agente RL & Closed-Loop', icon: Cpu, description: 'Decisiones PPO y aprobaciones' },
-  { id: 'telemetry', label: '3. Telemetría & TimescaleDB', icon: Activity, description: 'Gráficos de sensores en tiempo real' },
-  { id: 'what-if', label: '4. Simulador Qué Pasaría Si', icon: Sliders, description: 'Escenarios de riego y pronóstico' },
-  { id: 'reports', label: '5. Reportes PDF / Word / Excel', icon: Droplet, description: 'Generación y programación de informes' },
-  { id: 'rbac-audit', label: '6. Roles & Auditoría SHA-256', icon: ShieldCheck, description: 'Gestión RBAC y trazabilidad' },
-  { id: 'codebase', label: '7. Arquitectura & Código FastAPI', icon: RefreshCw, description: 'Documentación técnica integrada' }
-];
-
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose,
   activeTab,
   onTabChange
 }) => {
+  const { t } = useLanguage();
+
+  const NAV_ITEMS: Array<{
+    id: string;
+    label: string;
+    description: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [
+    { id: 'gis-map', label: t('sidebar.navItems.gisMap'), icon: Layers, description: t('sidebar.navItems.gisMapDesc') },
+    { id: 'rl-engine', label: t('sidebar.navItems.rlEngine'), icon: Cpu, description: t('sidebar.navItems.rlEngineDesc') },
+    { id: 'telemetry', label: t('sidebar.navItems.telemetry'), icon: Activity, description: t('sidebar.navItems.telemetryDesc') },
+    { id: 'what-if', label: t('sidebar.navItems.whatIf'), icon: Sliders, description: t('sidebar.navItems.whatIfDesc') },
+    { id: 'reports', label: t('sidebar.navItems.reports'), icon: Droplet, description: t('sidebar.navItems.reportsDesc') },
+    { id: 'rbac-audit', label: t('sidebar.navItems.rbacAudit'), icon: ShieldCheck, description: t('sidebar.navItems.rbacAuditDesc') },
+    { id: 'codebase', label: t('sidebar.navItems.codebase'), icon: RefreshCw, description: t('sidebar.navItems.codebaseDesc') }
+  ];
+
   return (
     <>
-      {/* Overlay backdrop para móvil */}
       {isOpen && (
         <div
           className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-200 lg:hidden"
@@ -49,7 +51,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
       )}
 
-      {/* Sidebar panel */}
       <aside
         className={`
           fixed top-0 left-0 z-50 h-full
@@ -64,7 +65,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           lg:translate-x-0 lg:shadow-none
         `}
       >
-        {/* Sidebar Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-950/40 border border-emerald-400/30 shrink-0">
@@ -73,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex flex-col leading-tight">
               <span className="text-[11px] font-bold tracking-widest text-emerald-500 uppercase">VRI Core</span>
               <span className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[150px]">
-                Navegación
+                {t('sidebar.navigation')}
               </span>
             </div>
           </div>
@@ -85,23 +85,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                        hover:bg-slate-200 dark:hover:bg-slate-700
                        hover:text-slate-900 dark:hover:text-white
                        transition-colors"
-            aria-label="Cerrar menú"
+            aria-label={t('common.close')}
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Título sección */}
         <div className="px-5 pt-5 pb-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            Módulos del Sistema
+            {t('sidebar.systemModules')}
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            {NAV_ITEMS.length} vistas principales
+            {t('sidebar.mainViews', { count: NAV_ITEMS.length })}
           </p>
         </div>
 
-        {/* Lista de navegación */}
         <nav className="flex-1 overflow-y-auto px-3 pb-6 scrollbar-none">
           <ul className="space-y-1">
             {NAV_ITEMS.map((item, idx) => {
@@ -172,7 +170,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </ul>
         </nav>
 
-        {/* Footer del Sidebar */}
         <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
           <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 dark:border-emerald-500/30">
             <div className="w-6 h-6 rounded-md bg-emerald-500 flex items-center justify-center shrink-0">
@@ -180,10 +177,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 leading-tight">
-                Motor RL-PPO v4.2
+                {t('sidebar.rlEngine')} v4.2
               </p>
               <p className="text-[10px] text-emerald-600/70 dark:text-emerald-500/80 leading-tight">
-                Ciclo Cerrado • En Línea
+                {t('sidebar.closedLoopOnline')}
               </p>
             </div>
           </div>
