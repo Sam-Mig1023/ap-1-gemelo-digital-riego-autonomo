@@ -31,7 +31,7 @@ export const RBACAuditConsole: React.FC<RBACAuditConsoleProps> = ({
   const permissionsMatrix = [
     { permission: 'Ver Telemetría y Mapas GIS en Tiempo Real', superadmin: true, agronomist: true, farmer: true, field_technician: true, rl_agent_system: true },
     { permission: 'Aprobar Decisiones de Riego RL (Modo Asistido)', superadmin: true, agronomist: true, farmer: true, field_technician: false, rl_agent_system: false },
-    { permission: 'Override Manual de Dosis de Agua (con justificación)', superadmin: true, agronomist: true, farmer: true, field_technician: false, rl_agent_system: false },
+    { permission: 'Anulación Manual de Dosis de Agua (con justificación)', superadmin: true, agronomist: true, farmer: true, field_technician: false, rl_agent_system: false },
     { permission: 'Habilitar Modo 100% Autónomo (RL Closed-Loop)', superadmin: true, agronomist: true, farmer: false, field_technician: false, rl_agent_system: false },
     { permission: 'Calibrar Parámetros de Suelo (Ksat, Succión, FC)', superadmin: true, agronomist: true, farmer: false, field_technician: false, rl_agent_system: true },
     { permission: 'Registrar y Mantener Transductores IoT / Sensores', superadmin: true, agronomist: false, farmer: false, field_technician: true, rl_agent_system: false },
@@ -72,7 +72,7 @@ export const RBACAuditConsole: React.FC<RBACAuditConsoleProps> = ({
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Matriz de Permisos Granulares por Rol de Usuario</h3>
           </div>
           <span className="text-xs text-slate-600 dark:text-slate-400">
-            RBAC Enforcement en endpoints FastAPI con OAuth2 / JWT
+            Control de Acceso RBAC en endpoints FastAPI con OAuth2 / JWT
           </span>
         </div>
 
@@ -144,14 +144,14 @@ export const RBACAuditConsole: React.FC<RBACAuditConsoleProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <Hash className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Log de Auditoría Inmutable (Trazabilidad SHA-256)</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Registro de Auditoría Inmutable (Trazabilidad SHA-256)</h3>
           </div>
 
           <div className="relative">
             <Search className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Buscar en logs..."
+              placeholder="Buscar en registros..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-48 sm:w-64"
@@ -163,7 +163,7 @@ export const RBACAuditConsole: React.FC<RBACAuditConsoleProps> = ({
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th className="p-3">Timestamp</th>
+                <th className="p-3">Fecha y Hora</th>
                 <th className="p-3">Usuario & Rol</th>
                 <th className="p-3">Acción</th>
                 <th className="p-3">Recurso / Entidad</th>
@@ -179,7 +179,14 @@ export const RBACAuditConsole: React.FC<RBACAuditConsoleProps> = ({
                   </td>
                   <td className="p-3">
                     <span className="font-semibold text-slate-900 dark:text-white block">{log.userEmail}</span>
-                    <span className="text-[10px] text-indigo-400 uppercase font-mono">{log.userRole}</span>
+                    <span className="text-[10px] text-indigo-400 uppercase font-mono">
+                      {log.userRole === 'superadmin' ? 'SUPERADMIN' :
+                       log.userRole === 'agronomist' ? 'AGRÓNOMO' :
+                       log.userRole === 'farmer' ? 'PRODUCTOR' :
+                       log.userRole === 'field_technician' ? 'TÉCNICO CAMPO' :
+                       log.userRole === 'rl_agent_system' ? 'SISTEMA RL' :
+                       log.userRole}
+                    </span>
                   </td>
                   <td className="p-3 font-mono font-bold text-emerald-400">{log.action}</td>
                   <td className="p-3 text-slate-700 dark:text-slate-300 font-mono text-[11px]">{log.resource}</td>

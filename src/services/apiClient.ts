@@ -3,7 +3,7 @@
  * Provides typed HTTP client methods for all VRI Digital Twin API endpoints
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000';
 
 interface ApiResponse<T> {
   data?: T;
@@ -53,7 +53,7 @@ class APIClient {
       };
     } catch (error) {
       return {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : 'Error desconocido',
         status: 0,
       };
     }

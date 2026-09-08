@@ -20,6 +20,58 @@ export interface ReportGenerationPayload {
   generatedBy: string;
 }
 
+const formatCropStage = (stage: string): string => {
+  switch (stage) {
+    case 'flowering': return 'Floración';
+    case 'vegetative': return 'Vegetativo';
+    case 'initial': return 'Inicial';
+    case 'yield_formation': return 'Llenado de grano';
+    case 'ripening': return 'Maduración';
+    default: return stage;
+  }
+};
+
+const formatSoilTexture = (texture: string): string => {
+  switch (texture) {
+    case 'sandy_loam': return 'Franco arenosa';
+    case 'silt_loam': return 'Franco limosa';
+    case 'clay_loam': return 'Franco arcillosa';
+    default: return texture.replace('_', ' ');
+  }
+};
+
+const formatIrrigationSystem = (sys: string): string => {
+  switch (sys) {
+    case 'center_pivot_vri': return 'Pivot Central VRI';
+    case 'linear_move_vri': return 'Avance Frontal VRI';
+    case 'drip_dosing_zones': return 'Goteo por Zonas';
+    default: return sys.replace('_', ' ');
+  }
+};
+
+const formatDecisionStatus = (status: string): string => {
+  switch (status) {
+    case 'approved': return 'APROBADA';
+    case 'pending': return 'PENDIENTE';
+    case 'feedback_verified': return 'VERIFICADA';
+    case 'executed': return 'EJECUTADA';
+    case 'failed': return 'FALLIDA';
+    case 'reverted': return 'REVERTIDA';
+    default: return status.toUpperCase();
+  }
+};
+
+const formatUserRole = (role: string): string => {
+  switch (role) {
+    case 'superadmin': return 'SUPERADMIN';
+    case 'agronomist': return 'AGRÓNOMO';
+    case 'farmer': return 'PRODUCTOR';
+    case 'field_technician': return 'TÉCNICO CAMPO';
+    case 'rl_agent_system': return 'SISTEMA RL';
+    default: return role.toUpperCase();
+  }
+};
+
 /**
  * Generates an executive PDF Report with jsPDF and autoTable
  */
@@ -46,7 +98,7 @@ export function generateExecutivePDF(data: ReportGenerationPayload): void {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(167, 243, 208); // Emerald 200
-  doc.text('Closed-Loop Autonomous Variable-Rate Irrigation System | Executive Agronomic Report', 14, 22);
+  doc.text('Sistema Autónomo de Riego VRI de Ciclo Cerrado | Reporte Agronómico Ejecutivo', 14, 22);
 
   doc.setFontSize(8);
   doc.setTextColor(203, 213, 225);
@@ -63,10 +115,10 @@ export function generateExecutivePDF(data: ReportGenerationPayload): void {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...grayColor);
-  doc.text(`Cultivo: ${data.field.cropName} (${data.field.cropVariety}) | Etapa: ${data.field.cropStage.toUpperCase()} (Kc: ${data.field.kcFactor}) | Área: ${data.field.totalAreaHa} Ha`, 14, currentY);
+  doc.text(`Cultivo: ${data.field.cropName} (${data.field.cropVariety}) | Etapa: ${formatCropStage(data.field.cropStage).toUpperCase()} (Kc: ${data.field.kcFactor}) | Área: ${data.field.totalAreaHa} Ha`, 14, currentY);
 
   currentY += 5;
-  doc.text(`Sistema de Riego: ${data.field.irrigationSystemType.toUpperCase()} | Ahorro Hídrico Acumulado: ${data.field.waterSavedM3Season.toLocaleString()} m³ | Energía Ahorrada: ${data.field.energySavedKwhSeason.toLocaleString()} kWh`, 14, currentY);
+  doc.text(`Sistema de Riego: ${formatIrrigationSystem(data.field.irrigationSystemType).toUpperCase()} | Ahorro Hídrico Acumulado: ${data.field.waterSavedM3Season.toLocaleString()} m³ | Energía Ahorrada: ${data.field.energySavedKwhSeason.toLocaleString()} kWh`, 14, currentY);
 
   // KPI Summary Table
   currentY += 6;
@@ -75,7 +127,7 @@ export function generateExecutivePDF(data: ReportGenerationPayload): void {
     head: [['Zona de Manejo', 'Textura', 'Área (Ha)', 'Humedad (10/30cm)', 'Temp Dosel (°C)', 'CWSI Estrés', 'Dosis RL (mm)', 'Volumen (m³)']],
     body: data.zones.map(z => [
       z.name,
-      z.soilTexture.replace('_', ' '),
+      formatSoilTexture(z.soilTexture),
       z.areaHectares.toFixed(1),
       `${z.currentMoisture10cm}% / ${z.currentMoisture30cm}%`,
       `${z.currentCanopyTemp}°C`,
@@ -106,7 +158,7 @@ export function generateExecutivePDF(data: ReportGenerationPayload): void {
       d.zoneName,
       `${d.recommendedDepthMm} mm`,
       `${Math.round(d.confidenceScore * 100)}%`,
-      d.status.toUpperCase(),
+      formatDecisionStatus(d.status),
       d.explanation.dominantFeature
     ]),
     theme: 'striped',
@@ -148,7 +200,7 @@ export async function generateWordDocx(data: ReportGenerationPayload): Promise<v
               new TextRun({ text: `Campo: `, bold: true }),
               new TextRun(`${data.field.name}\n`),
               new TextRun({ text: `Cultivo: `, bold: true }),
-              new TextRun(`${data.field.cropName} (${data.field.cropVariety}) - Etapa: ${data.field.cropStage}\n`),
+              new TextRun(`${data.field.cropName} (${data.field.cropVariety}) - Etapa: ${formatCropStage(data.field.cropStage)}\n`),
               new TextRun({ text: `Fecha de emisión: `, bold: true }),
               new TextRun(`${new Date().toLocaleString('es-PE')}\n`),
               new TextRun({ text: `Auditor / Ingeniero: `, bold: true }),
@@ -177,7 +229,7 @@ export async function generateWordDocx(data: ReportGenerationPayload): Promise<v
               ...data.zones.map(z => new TableRow({
                 children: [
                   new TableCell({ children: [new Paragraph(z.name)] }),
-                  new TableCell({ children: [new Paragraph(z.soilTexture)] }),
+                  new TableCell({ children: [new Paragraph(formatSoilTexture(z.soilTexture))] }),
                   new TableCell({ children: [new Paragraph(`${z.currentMoisture10cm}%`)] }),
                   new TableCell({ children: [new Paragraph(`${z.currentCanopyTemp}°C`)] }),
                   new TableCell({ children: [new Paragraph(z.cwsi.toFixed(2))] }),
@@ -203,7 +255,7 @@ export async function generateWordDocx(data: ReportGenerationPayload): Promise<v
           ...data.auditLogs.map(l => new Paragraph({
             children: [
               new TextRun({ text: `[${l.timestamp.split('T')[1].split('.')[0]}] `, bold: true }),
-              new TextRun({ text: `${l.userRole.toUpperCase()} (${l.userEmail}): `, color: '2563EB' }),
+              new TextRun({ text: `${formatUserRole(l.userRole)} (${l.userEmail}): `, color: '2563EB' }),
               new TextRun(`${l.action} - ${l.details}`)
             ],
             spacing: { after: 80 }
@@ -228,10 +280,10 @@ export function generateExcelWorkbook(data: ReportGenerationPayload): void {
     ['CAMPO AGRÍCOLA', data.field.name],
     ['CULTIVO', data.field.cropName],
     ['VARIEDAD', data.field.cropVariety],
-    ['ETAPA FENOLÓGICA', data.field.cropStage],
+    ['ETAPA FENOLÓGICA', formatCropStage(data.field.cropStage)],
     ['COEFICIENTE Kc (FAO-56)', data.field.kcFactor],
     ['ÁREA TOTAL (Ha)', data.field.totalAreaHa],
-    ['SISTEMA DE RIEGO', data.field.irrigationSystemType],
+    ['SISTEMA DE RIEGO', formatIrrigationSystem(data.field.irrigationSystemType)],
     ['AHORRO HÍDRICO ACUMULADO (m3)', data.field.waterSavedM3Season],
     ['AHORRO ENERGÉTICO (kWh)', data.field.energySavedKwhSeason],
     ['FECHA DE REPORTE', new Date().toISOString()]
@@ -244,7 +296,7 @@ export function generateExcelWorkbook(data: ReportGenerationPayload): void {
     'ID Zona': z.id,
     'Nombre': z.name,
     'Área (Ha)': z.areaHectares,
-    'Textura Suelo': z.soilTexture,
+    'Textura Suelo': formatSoilTexture(z.soilTexture),
     'Capacidad Campo (m3/m3)': z.fieldCapacity,
     'Punto Marchitez (m3/m3)': z.wiltingPoint,
     'Conductividad Ksat (mm/h)': z.saturatedK,
@@ -256,7 +308,7 @@ export function generateExcelWorkbook(data: ReportGenerationPayload): void {
     'Dosis RL (mm)': z.recommendedRateMm,
     'Volumen m3': Math.round((z.recommendedRateMm / 1000) * z.areaHectares * 10000),
     'Eficiencia Hidráulica': z.hydraulicEfficiency,
-    'Estado': z.status
+    'Estado': z.status === 'optimal' ? 'Óptimo' : z.status === 'mild_stress' ? 'Estrés Leve' : z.status === 'severe_stress' ? 'Estrés Severo' : z.status
   }));
   const wsZonas = XLSX.utils.json_to_sheet(zonasData);
   XLSX.utils.book_append_sheet(wb, wsZonas, 'Zonas_Manejo');
@@ -264,11 +316,11 @@ export function generateExcelWorkbook(data: ReportGenerationPayload): void {
   // Tab 3: Telemetría de Sensores
   const sensoresData = data.sensors.map(s => ({
     'ID Sensor': s.sensorId,
-    'Tipo': s.sensorType,
+    'Tipo': s.sensorType === 'soil_moisture_multi' ? 'Humedad Multiprofundidad' : s.sensorType === 'canopy_temperature_irt' ? 'Termografía IRT Dosel' : s.sensorType === 'weather_station' ? 'Estación Meteorológica' : s.sensorType,
     'Zona': s.zoneId,
     'Latitud': s.location.lat,
     'Longitud': s.location.lng,
-    'Estado': s.status,
+    'Estado': s.status === 'online' ? 'En línea' : s.status === 'offline' ? 'Desconectado' : s.status,
     'Batería (%)': s.batteryLevel,
     'RSSI (dBm)': s.rssi,
     'Humedad 10cm (%)': s.readings.volumetricWaterContent_10cm ?? 'N/A',
@@ -291,7 +343,7 @@ export function generateExcelWorkbook(data: ReportGenerationPayload): void {
     'Dosis Recomendada (mm)': d.recommendedDepthMm,
     'Volumen (m3)': d.recommendedVolumeM3,
     'Confianza': d.confidenceScore,
-    'Estado': d.status,
+    'Estado': formatDecisionStatus(d.status),
     'Aprobado Por': d.approvedBy ?? 'N/A',
     'Recompensa Esperada': d.rewardExpected,
     'XAI Característica Principal': d.explanation.dominantFeature,
@@ -305,7 +357,7 @@ export function generateExcelWorkbook(data: ReportGenerationPayload): void {
     'ID': a.id,
     'Timestamp': a.timestamp,
     'Usuario Email': a.userEmail,
-    'Rol': a.userRole,
+    'Rol': formatUserRole(a.userRole),
     'Acción': a.action,
     'Recurso': a.resource,
     'Detalles': a.details,

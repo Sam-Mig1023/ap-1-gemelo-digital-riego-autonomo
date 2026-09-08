@@ -220,7 +220,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                 Cola de Decisiones por Zona de Manejo
               </span>
               <span className="text-xs text-slate-600 dark:text-slate-400">
-                Modo: <strong className="text-slate-900 dark:text-white capitalize">{systemMode}</strong>
+                Modo: <strong className="text-slate-900 dark:text-white">{systemMode === 'assisted' ? 'Asistido' : systemMode === 'manual' ? 'Manual' : systemMode === 'autonomous' ? 'Autónomo' : systemMode}</strong>
               </span>
             </div>
 
@@ -279,7 +279,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>Explicabilidad de Decisión (XAI / SHAP Values): {selectedDecision.zoneName}</span>
+                    <span>Explicabilidad de Decisión (IA Explicable / Valores SHAP): {selectedDecision.zoneName}</span>
                   </h3>
                   <p className="text-xs text-emerald-400/90 mt-0.5">
                     Característica dominante: {selectedDecision.explanation.dominantFeature}
@@ -322,7 +322,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                       className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-md shadow-blue-950/40"
                     >
                       <FileCheck2 className="w-3.5 h-3.5" />
-                      <span>Verificar Feedback Post-Riego (60 min)</span>
+                      <span>Verificar Retroalimentación Post-Riego (60 min)</span>
                     </button>
                   )}
                 </div>
@@ -331,7 +331,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
               {/* SHAP Feature Impact Bars */}
               <div className="space-y-3">
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">
-                  Contribución Relativa al Vector de Acción (SHAP Force Weights):
+                  Contribución Relativa al Vector de Acción (Pesos de Fuerza SHAP):
                 </span>
 
                 <div className="space-y-2.5">

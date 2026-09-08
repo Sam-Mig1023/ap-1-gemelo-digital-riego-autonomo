@@ -370,7 +370,9 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white">{selectedZone.name}</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 capitalize">Textura: {selectedZone.soilTexture.replace('_', ' ')} • {selectedZone.areaHectares} Ha</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      Textura: {selectedZone.soilTexture === 'sandy_loam' ? 'Franco arenosa' : selectedZone.soilTexture === 'silt_loam' ? 'Franco limosa' : selectedZone.soilTexture === 'clay_loam' ? 'Franco arcillosa' : selectedZone.soilTexture.replace('_', ' ')} • {selectedZone.areaHectares} Ha
+                    </p>
                   </div>
                   <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${
                     selectedZone.status === 'severe_stress'

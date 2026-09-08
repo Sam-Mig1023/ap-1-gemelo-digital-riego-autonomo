@@ -367,7 +367,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Server className="w-4 h-4 text-emerald-400" />
-              <span>OpenAPI 3.0 / FastAPI Endpoints Reference</span>
+              <span>Referencia de Endpoints OpenAPI 3.0 / FastAPI</span>
             </h3>
             <span className="text-xs text-emerald-400 font-mono">REST + WebSockets</span>
           </div>

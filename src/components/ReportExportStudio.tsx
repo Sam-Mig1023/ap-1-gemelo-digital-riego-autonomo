@@ -264,7 +264,7 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
                   <td className="p-3 font-mono text-slate-600 dark:text-slate-400">{rep.lastGenerated}</td>
                   <td className="p-3">
                     <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">
-                      {rep.status.toUpperCase()}
+                      {rep.status === 'active' ? 'ACTIVO' : rep.status.toUpperCase()}
                     </span>
                   </td>
                   <td className="p-3">

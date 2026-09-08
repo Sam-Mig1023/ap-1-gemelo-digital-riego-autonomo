@@ -209,7 +209,7 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
                 <th className="p-3">Última Lectura</th>
                 <th className="p-3">Batería & RSSI</th>
                 <th className="p-3">Calidad (0-100)</th>
-                <th className="p-3">Score Anomalía</th>
+                <th className="p-3">Puntuación de Anomalía</th>
                 <th className="p-3">Estado RL</th>
               </tr>
             </thead>
@@ -224,8 +224,11 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
                       <span className="w-2 h-2 rounded-full bg-emerald-400" />
                       {sensor.sensorId}
                     </td>
-                    <td className="p-3 capitalize text-slate-700 dark:text-slate-300">
-                      {sensor.sensorType.replace('_', ' ')}
+                    <td className="p-3 text-slate-700 dark:text-slate-300">
+                      {sensor.sensorType === 'soil_moisture_multi' ? 'Humedad Multiprofundidad' :
+                       sensor.sensorType === 'canopy_temperature_irt' ? 'Termografía IRT Dosel' :
+                       sensor.sensorType === 'weather_station' ? 'Estación Meteorológica' :
+                       sensor.sensorType.replace('_', ' ')}
                     </td>
                     <td className="p-3 text-slate-700 dark:text-slate-300">{zone?.name.split('(')[0] || sensor.zoneId}</td>
                     <td className="p-3 font-mono text-slate-800 dark:text-slate-200">

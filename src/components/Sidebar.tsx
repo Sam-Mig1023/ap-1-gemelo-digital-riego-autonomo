@@ -73,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex flex-col leading-tight">
               <span className="text-[11px] font-bold tracking-widest text-emerald-500 uppercase">VRI Core</span>
               <span className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[150px]">
-                Navigation
+                Navegación
               </span>
             </div>
           </div>
@@ -180,10 +180,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 leading-tight">
-                PPO-RL Engine v4.2
+                Motor RL-PPO v4.2
               </p>
               <p className="text-[10px] text-emerald-600/70 dark:text-emerald-500/80 leading-tight">
-                Closed-Loop • Online
+                Ciclo Cerrado • En Línea
               </p>
             </div>
           </div>

@@ -11,7 +11,7 @@ export const CODEBASE_DELIVERABLES: CodeFile[] = [
     path: 'backend/app/main.py',
     language: 'python',
     category: 'backend',
-    description: 'FastAPI async application entry point with CORS, JWT Auth, WebSockets & Routers',
+    description: 'Punto de entrada asíncrono FastAPI con CORS, autenticación JWT, WebSockets y enrutadores',
     content: `"""
 FastAPI Main Application
 Closed-Loop Digital Twin for Autonomous Variable-Rate Irrigation (VRI)
@@ -91,7 +91,7 @@ async def websocket_telemetry_endpoint(websocket: WebSocket, field_id: str):
     path: 'backend/app/models/domain.py',
     language: 'python',
     category: 'database',
-    description: 'SQLAlchemy 2.0 Models with PostGIS Geometry, TimescaleDB Hypertables & Audit Trails',
+    description: 'Modelos ORM SQLAlchemy 2.0 con geometría PostGIS, Hypertables de TimescaleDB y trazabilidad',
     content: `"""
 SQLAlchemy 2.0 ORM Models
 PostgreSQL 15 + PostGIS + TimescaleDB
@@ -249,7 +249,7 @@ class AuditLog(Base):
     path: 'ml_engine/vri_gym_env.py',
     language: 'python',
     category: 'ml_rl',
-    description: 'Custom Gymnasium Environment for Variable-Rate Irrigation with FAO-56 & Green-Ampt Physics',
+    description: 'Entorno Gymnasium para Riego VRI con física FAO-56 e infiltración Green-Ampt',
     content: `"""
 Gymnasium Custom Environment for VRI
 Model: Closed-Loop Soil Moisture, Canopy Temperature, Radar Fusion
@@ -393,7 +393,7 @@ class VariableRateIrrigationEnv(gym.Env):
     path: 'ml_engine/train_ppo.py',
     language: 'python',
     category: 'ml_rl',
-    description: 'PPO Agent Training Pipeline with Stable-Baselines3 & MLflow Experiment Tracking',
+    description: 'Flujo de entrenamiento del Agente PPO con Stable-Baselines3 y registro MLflow',
     content: `"""
 PPO Reinforcement Learning Training Loop for VRI
 Framework: Stable-Baselines3 + MLflow
@@ -450,7 +450,7 @@ if __name__ == "__main__":
     path: 'backend/app/tasks/irrigation_tasks.py',
     language: 'python',
     category: 'backend',
-    description: 'Celery Async Task Worker for Feedback Evaluation & Scheduled Report Generation',
+    description: 'Trabajador asíncrono Celery para evaluación de ciclo cerrado y reportes programados',
     content: `"""
 Celery Task Worker for Closed-Loop Automation & Celery Beat Scheduler
 """
@@ -499,7 +499,7 @@ def task_dispatch_scheduled_reports():
     path: 'docker-compose.yml',
     language: 'yaml',
     category: 'infrastructure',
-    description: 'Multi-container Docker Compose for FastAPI, TimescaleDB, PostGIS, Redis, Celery & MLflow',
+    description: 'Docker Compose multicontenedor para FastAPI, TimescaleDB, PostGIS, Redis, Celery y MLflow',
     content: `version: '3.9'
 
 services:
@@ -598,7 +598,7 @@ volumes:
     path: 'tests/test_vri_closed_loop.py',
     language: 'python',
     category: 'tests',
-    description: 'Pytest Suite for Green-Ampt Physics, CWSI calculation, PPO Agent Inference & Feedback loop',
+    description: 'Suite de pruebas Pytest para física Green-Ampt, cálculo CWSI, inferencia PPO y ciclo cerrado',
     content: `"""
 Automated Pytest Suite for VRI Closed-Loop Digital Twin
 """

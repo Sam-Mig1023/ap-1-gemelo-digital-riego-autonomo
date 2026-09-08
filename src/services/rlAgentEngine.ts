@@ -60,7 +60,7 @@ export function buildObservationTensor(
     etcMmDay: etcMmDay,
     forecastRain24hMm: forecastRain24h,
     radarEchoIntensity: radarEcho,
-    cropStageNormalized: 0.65, // Flowering
+    cropStageNormalized: 0.65, // Floración
     soilMoistureDepletionPct: Number(depletionPct.toFixed(1)),
     electricityTariffTier: tariffTier
   };
@@ -108,7 +108,7 @@ export function generateXAIExplanation(
 ): XAIExplanation {
   const shapValues = [
     {
-      feature: `Canopy Thermal Stress (CWSI: ${observation.cwsi})`,
+      feature: `Estrés Térmico de Dosel (CWSI: ${observation.cwsi})`,
       impact: observation.cwsi > 0.45 ? +(observation.cwsi * 0.7) : -(0.3 * (1 - observation.cwsi)),
       description: observation.cwsi > 0.45 ? 'Elevado estrés hídrico detectado por termografía' : 'Sin estrés térmico notable'
     },

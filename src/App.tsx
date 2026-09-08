@@ -155,7 +155,7 @@ export default function App() {
           overriddenManually: true,
           overrideReason: reason,
           status: 'approved',
-          approvedBy: `Manual Override (${activeRole})`
+          approvedBy: `Anulación Manual (${activeRole})`
         };
       }
       return d;
@@ -174,7 +174,7 @@ export default function App() {
       `RLDecision/${decisionId} (${selectedZone.name})`,
       `Dosis modificada manualmente a ${customDepthMm} mm. Motivo: ${reason}`
     );
-    showToast(`Override manual aplicado: ${customDepthMm} mm en ${selectedZone.name}.`);
+    showToast(`Anulación manual aplicada: ${customDepthMm} mm en ${selectedZone.name}.`);
   };
 
   // Re-infer all zones with PPO RL Agent
@@ -366,7 +366,7 @@ export default function App() {
         {/* Footer */}
         <footer className="border-t border-slate-200 dark:border-slate-900 bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 py-4 px-6 text-center text-xs">
           <p>
-            Closed-Loop Digital Twin for Autonomous Variable-Rate Irrigation (VRI) • Fusing Soil Moisture, Canopy IRT & Weather Radar with PPO RL
+            Gemelo Digital de Ciclo Cerrado para Riego Autónomo de Tasa Variable (VRI) • Fusión de Humedad del Suelo, IRT de Dosel y Radar Meteorológico con RL PPO
           </p>
         </footer>
 

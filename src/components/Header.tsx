@@ -53,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
       case 'field_technician':
         return { label: 'Técnico de Campo', color: 'bg-blue-500/20 text-blue-300 dark:text-blue-300 border-blue-500/40' };
       case 'rl_agent_system':
-        return { label: 'RL Agent Autonomous', color: 'bg-rose-500/20 text-rose-300 dark:text-rose-300 border-rose-500/40' };
+        return { label: 'Agente RL Autónomo', color: 'bg-rose-500/20 text-rose-300 dark:text-rose-300 border-rose-500/40' };
     }
   };
 
@@ -88,14 +88,14 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2 min-w-0">
               <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 min-w-0 whitespace-nowrap overflow-hidden">
-                CLOSED-LOOP DIGITAL TWIN <span className="text-emerald-400 shrink-0">VRI</span>
+                GEMELO DIGITAL DE CICLO CERRADO <span className="text-emerald-400 shrink-0">VRI</span>
               </h1>
               <span className="hidden xl:inline-flex shrink-0 px-2 py-0.5 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                PPO-RL Core
+                Núcleo RL-PPO
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 font-medium truncate">
-              {field.name} • {field.cropName} ({field.cropStage})
+              {field.name} • {field.cropName} ({field.cropStage === 'flowering' ? 'Floración' : field.cropStage === 'vegetative' ? 'Vegetativo' : field.cropStage === 'initial' ? 'Inicial' : field.cropStage === 'yield_formation' ? 'Llenado de grano' : field.cropStage === 'ripening' ? 'Maduración' : field.cropStage})
             </p>
           </div>
         </div>
@@ -179,13 +179,13 @@ export const Header: React.FC<HeaderProps> = ({
             {isOnline ? (
               <>
                 <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="hidden sm:inline">Online</span>
+                <span className="hidden sm:inline">En línea</span>
               </>
             ) : (
               <>
                 <WifiOff className="w-3.5 h-3.5 text-amber-400" />
-                <span className="sm:hidden">Offline ({offlineQueueCount})</span>
-                <span className="hidden sm:inline">Rural Offline ({offlineQueueCount})</span>
+                <span className="sm:hidden">Sin conexión ({offlineQueueCount})</span>
+                <span className="hidden sm:inline">Rural Sin Conexión ({offlineQueueCount})</span>
               </>
             )}
           </button>
@@ -203,7 +203,7 @@ export const Header: React.FC<HeaderProps> = ({
               <option value="agronomist" className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white">Agrónomo Senior</option>
               <option value="farmer" className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white">Productor Agrícola</option>
               <option value="field_technician" className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white">Técnico de Campo</option>
-              <option value="rl_agent_system" className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white">RL Agent</option>
+              <option value="rl_agent_system" className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white">Agente RL (Sistema)</option>
             </select>
             <span className={`hidden sm:inline-flex px-1.5 py-0.5 text-[10px] font-semibold rounded border ${currentRoleInfo.color}`}>
               {currentRoleInfo.label}
