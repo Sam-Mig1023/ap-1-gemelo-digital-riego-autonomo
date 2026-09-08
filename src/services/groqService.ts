@@ -16,7 +16,6 @@ export interface ChatMessage {
 const GROQ_API_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
 const LOCAL_STORAGE_KEY = 'groq_api_key';
 const LOCAL_STORAGE_MODEL_KEY = 'groq_selected_model';
-const DEFAULT_GROQ_API_KEY = 'groq_api_key';
 
 export const DEFAULT_MODEL = 'openai/gpt-oss-120b';
 
@@ -57,6 +56,7 @@ export function getStoredGroqApiKey(): string {
   const envKey = (import.meta as any).env?.VITE_GROQ_API_KEY;
 
   if (envKey && typeof envKey === 'string' && envKey.trim().length > 0) {
+    setStoredGroqApiKey(envKey);
     return envKey.trim();
   }
 
