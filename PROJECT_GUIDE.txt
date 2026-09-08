@@ -640,7 +640,429 @@ Profiler de rendimiento:
    └─ Monitoring con Prometheus/Grafana
 
 ================================================================================
-10. CONTACTO Y SOPORTE
+10. EXPLICACIÓN DETALLADA DE CADA VISTA (FRONTEND)
+================================================================================
+
+El frontend cuenta con 7 vistas (pestañas) principales, navegables desde la
+barra superior. Cada vista se renderiza condicionalmente en App.tsx según el
+estado activeTab:
+
+    {activeTab === 'gis-map' && <FieldGISMap ... />}
+    {activeTab === 'rl-engine' && <RLDecisionConsole ... />}
+    ...etc.
+
+Cada vista recibe como props el estado global (zones, sensors, decisions, etc.)
+y callbacks para disparar acciones que actualizan dicho estado en App.tsx.
+
+--------------------------------------------------------------------------------
+10.1 VISTA 1: GEMELO DIGITAL Y MAPA GIS (tab: 'gis-map')
+     Componente: /src/components/FieldGISMap.tsx
+--------------------------------------------------------------------------------
+
+IMPLEMENTACIÓN:
+  - Renderiza un mapa SVG del campo agrícola dividido en 4 zonas de manejo:
+    NW (Noroeste), NE (Noreste), SW (Suroeste), SE (Sureste).
+  - Cada zona es un <path> o <rect> SVG coloreado según la "capa visual"
+    seleccionada (estrés hídrico, humedad, dosis RL, radar, textura).
+  - Un pivot central animado rota simulando el brazo aspersor.
+  - Capas de visualización controladas por un selector de botones que
+    actualiza un estado interno: visualLayer.
+  - Overlay de texto con lecturas de humedad y dosis por zona, extraídas
+    de las props zones[] y decisions[].
+
+FLUJO DE INTERACCIÓN:
+  1. Usuario hace click en una zona del mapa SVG.
+  2. Llama al callback onSelectZone(zone) → actualiza selectedZone en App.tsx.
+  3. Panel lateral muestra detalles de la zona: humedad TDR por horizonte,
+     temperatura IRT del dosel, conductividad hidráulica Ksat, y la dosis
+     prescrita por PPO RL.
+  4. Botón "Aplicar Dosis VRI" dispara onTriggerIrrigation(zoneId, depthMm),
+     que registra la acción en auditoría y abre el modal de feedback
+     ClosedLoopFeedback para recalibración post-riego.
+
+ESTILOS (Modo Claro/Oscuro):
+  - El SVG aplica colores con clases Tailwind con prefijo dark:
+    fill-slate-100 dark:fill-slate-800
+    stroke-slate-300 dark:stroke-slate-700
+  - Switcher de capas: bg-slate-100 dark:bg-slate-900
+  - Panel lateral: bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800
+
+--------------------------------------------------------------------------------
+10.2 VISTA 2: AGENTE RL Y CLOSED-LOOP (tab: 'rl-engine')
+     Componente: /src/components/RLDecisionConsole.tsx
+--------------------------------------------------------------------------------
+
+IMPLEMENTACIÓN:
+  - Tabla principal que lista decisiones RL pendientes:
+    • ID de decisión, zona, dosis mm recomendada, confianza, estado.
+  - Panel de explicabilidad XAI (SHAP) con barras de impacto por feature.
+  - Tres botones de acción por fila: Aprobar, Anular Manualmente,
+    Disparar Feedback de ciclo cerrado.
+  - Barra superior con botón "Recomputar Inferencia RL PPO" que llama a
+    runRLPolicyInference() del servicio rlAgentEngine.ts para cada zona.
+
+FLUJO DE INTERACCIÓN:
+  1. El usuario ve una decisión con su confianza (ej: 8.4mm, 96.4%).
+  2. Valores SHAP muestran qué sensores influyeron más (ej: temperatura
+     del dosel +38%, humedad superficial -22%).
+  3. Opciones:
+     a) APROBAR → onApproveDecision(id): marca status='approved', registra
+        en auditLogs con role activo y envía toast.
+     b) ANULAR MANUALMENTE → modal con input numérico para nueva dosis y
+        motivo (reason). Al confirmar: onManualOverride(id, depth, reason)
+        actualiza decision + zona.recommendedRateMm.
+     c) FEEDBACK → onTriggerFeedbackModal(dec): abre ClosedLoopFeedbackModal
+        para registrar outcome real vs predicho y recalibrar Ksat.
+  4. BOTÓN GLOBAL "Recomputar todo RL" → itera zones[] y regenera
+     decisions[] desde cero (llamada a handleRecomputeAllRL en App.tsx).
+
+PERMISOS RBAC:
+  - El selector de rol (activeRole) en Header.tsx controla qué botones están
+    deshabilitados. Ej: rol 'farmer' no puede aprobar decisiones, solo ver.
+    Implementado con condicional disabled={activeRole === 'farmer'}.
+
+--------------------------------------------------------------------------------
+10.3 VISTA 3: TELEMETRÍA Y TIMESCALEDB (tab: 'telemetry')
+     Componente: /src/components/TelemetryAnalytics.tsx
+--------------------------------------------------------------------------------
+
+IMPLEMENTACIÓN:
+  - Usa la librería Recharts para gráficos SVG de series temporales.
+  - Tres gráficos principales:
+    1. LineChart → Humedad volumétrica % por horizonte (10/30/60cm).
+    2. AreaChart → Temperatura del dosel IRT vs temperatura ambiente.
+    3. BarChart → Intensidad radar meteorológico (dBZ) por celda.
+  - Tabla inferior con últimas lecturas de sensores (id, zona, timestamp,
+    valor, estado OK/ANOMALÍA).
+
+FLUJO DE DATOS:
+  - Recibe sensors[] como prop, que contiene arrays de lecturas históricas
+    mockeadas en mockData.ts (144 puntos = 24h * 6 lecturas/hora).
+  - Anomalías detectadas por anomalyDetectionEngine.ts (Isolation Forest
+    simulado con umbrales de desviación estándar).
+  - Selector de zona: muestra datos de la zona actualmente seleccionada
+    (selectedZone de App.tsx), filtrando sensor.zoneId.
+
+CONEXIÓN FUTURA A TIMESCALEDB:
+  - Actualmente datos mock, pero el archivo apiClient.ts tiene métodos
+    preparados: getSensorTelemetryByZone(zoneId, startTime, endTime) que
+    llamaría a GET /api/v1/sensors/zone/{zone_id} con query params.
+
+--------------------------------------------------------------------------------
+10.4 VISTA 4: SIMULADOR WHAT-IF (tab: 'what-if')
+     Componente: /src/components/WhatIfSimulator.tsx
+--------------------------------------------------------------------------------
+
+IMPLEMENTACIÓN:
+  - Panel de entrada con sliders (inputs type range) para 3 variables:
+    1. Dosis de riego manual (0-20mm)
+    2. Pronóstico de lluvia (0-50mm en 24h)
+    3. Ola de calor / temperatura ambiente (+5°C, +10°C, etc.)
+  - Motor de simulación: digitalTwinEngine.ts → método
+    simulateWaterBalance(zone, irrigationDepth, rainfall, heatStress)
+    que calcula nuevo perfil de humedad usando modelo Green-Ampt + ETc.
+  - Visualización de resultado: gráfico de barras comparativo
+    (Humedad Actual vs Humedad Simulada) + métricas (balance hídrico,
+    riesgo de estrés, ahorro vs escenario base).
+
+FLUJO:
+  1. Usuario ajusta sliders → onChange actualiza estado local del componente.
+  2. Botón "Ejecutar Simulación" → llama al servicio digitalTwinEngine.ts.
+  3. Resultado se renderiza en tarjetas con colores semaforizados:
+     verde (óptimo), amarillo (estrés leve), rojo (estrés severo).
+  4. Botón "Exportar Resultados" genera CSV blob con scenario parameters
+     + outcome.
+
+--------------------------------------------------------------------------------
+10.5 VISTA 5: REPORTES PDF/WORD/EXCEL (tab: 'reports')
+     Componente: /src/components/ReportExportStudio.tsx
+--------------------------------------------------------------------------------
+
+IMPLEMENTACIÓN:
+  - Sección de parámetros: checkboxes multi-select para elegir qué secciones
+    incluir (resumen ejecutivo, telemetría, decisiones RL, auditoría).
+  - Selector de formato: PDF / Excel (.xlsx) / Word (.docx).
+  - Botón "Generar Reporte" → despacha al servicio reportGenerators.ts que
+    implementa 3 generadores según el formato:
+    • generatePDF() → usa jsPDF (canvg para incluir gráficos SVG de Recharts).
+    • generateExcel() → usa SheetJS (xlsx) con múltiples hojas por sección.
+    • generateWord() → usa librería docx generando .docx con tablas y párrafos.
+  - Historial de reportes generados (scheduledReports[]), programados con
+    fecha y frecuencia (diario/semanal/mensual).
+
+FLUJO:
+  1. Usuario marca secciones y elige formato.
+  2. Click en Generar → el servicio formatea datos (field, zones, sensors,
+     decisions, auditLogs) en la estructura requerida.
+  3. Se genera un Blob con MIME-type apropiado (application/pdf,
+     application/vnd.openxmlformats-officedocument...).
+  4. Se crea un <a href=URL.createObjectURL(blob)> invisible, se dispara
+     click() para descarga automática, luego URL.revokeObjectURL().
+
+--------------------------------------------------------------------------------
+10.6 VISTA 6: ROLES Y AUDITORÍA SHA-256 (tab: 'rbac-audit')
+     Componente: /src/components/RBACAuditConsole.tsx
+--------------------------------------------------------------------------------
+
+IMPLEMENTACIÓN:
+  - Dos paneles:
+    1. IZQUIERDA → Gestión de usuarios (tabla con roles, email, última
+       conexión, estado activo/inactivo, selector dropdown para cambiar
+       rol inline).
+    2. DERECHA → Log de auditoría con búsqueda/filtros (por usuario,
+       fecha, tipo de acción).
+  - Cada entrada de auditoría muestra:
+    • Timestamp (ISO 8601)
+    • Usuario + rol
+    • Acción (ej: APPROVE_IRRIGATION_DECISION)
+    • Recurso afectado (ej: RLDecision/rl-xxx)
+    • Detalle en texto plano
+    • Firma SHA-256 (64 chars hex)
+  - Botón "Verificar Integridad SHA-256" → simula comprobación hash de
+    bloque anterior + datos actual = hash almacenado (blockchain-like).
+
+INTEGRIDAD DE DATOS:
+  - En mockData.ts, cada AuditLogEntry tiene sha256Signature: 64 chars
+    hexadecimales generados aleatoriamente. En producción, se calcularía
+    con: SHA-256(timestamp + userId + action + resource + previousHash)
+    y se verificaría en el endpoint /api/v1/audit/verify.
+
+CAMBIO DE ROL EN VIVO:
+  - Cuando el usuario cambia activeRole en la consola, el evento onRoleChange
+    actualiza App.tsx, y todos los componentes reaccionan: botones se
+    deshabilitan, vistas se filtran. Útil para demo de permisos.
+
+--------------------------------------------------------------------------------
+10.7 VISTA 7: ARQUITECTURA Y CÓDIGO FASTAPI (tab: 'codebase')
+     Componente: /src/components/ArchitectureAndCodeViewer.tsx
+--------------------------------------------------------------------------------
+
+IMPLEMENTACIÓN:
+  - 4 sub-pestañas internas gestionadas con useState interno:
+    1. DIAGRAMA → SVG embebido mostrando arquitectura hexagonal:
+       Cliente → Gateway (CORS) → FastAPI Routers → Core (config, DB)
+       → Servicios Externos (TimescaleDB, Redis, Celery, PPO Model).
+    2. DB SCHEMA → Tabla con estructura de tablas:
+       agricultural_fields, management_zones, sensors, sensor_telemetry,
+       rl_decisions, irrigation_executions, audit_logs, scheduled_reports.
+       Cada tabla muestra columnas, tipos, PK, FK, constraints.
+    3. OPENAPI → Lista de endpoints con método HTTP, ruta, descripción,
+       request body schema, response schema. Extraídos de codebaseData.ts.
+    4. CODE SNIPPETS → Bloques con formato de sintaxis (sencilla simulación
+       con colores por monospace + bg-slate-900). Muestra ejemplo Python
+       (main.py con lifespan) y SQL (CREATE TABLE con índices TimescaleDB).
+  - Datos estáticos provienen de /src/services/codebaseData.ts (objetos JS
+    con arrays de strings y objetos, no se cargan del backend real).
+
+================================================================================
+11. IMPLEMENTACIÓN TÉCNICA DE FASTAPI (BACKEND)
+================================================================================
+
+El backend sigue una arquitectura modular con FastAPI versionada (v1).
+A continuación se explica CÓMO está implementado cada aspecto:
+
+--------------------------------------------------------------------------------
+11.1 PUNTO DE ENTRADA: /backend/app/main.py
+--------------------------------------------------------------------------------
+
+ESTRUCTURA BÁSICA:
+
+  1. CREACIÓN DE LA APP:
+        app = FastAPI(
+            title="VRI Closed-Loop Digital Twin API",
+            version="1.0.0",
+            lifespan=lifespan,          # ← Gestión del ciclo de vida
+            docs_url="/docs",            # ← Swagger UI automático
+            redoc_url="/redoc"           # ← ReDoc alternativo
+        )
+
+     → lifespan() es un async context manager que ejecuta código al inicio
+       y al apagado:
+         - STARTUP: init_db() (inicializa pool de conexiones DB demo)
+         - SHUTDOWN: close_db() (libera recursos)
+
+  2. MIDDLEWARE CORS:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=settings.CORS_ORIGINS,   # ["*"] en demo
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
+     → Permite que el frontend en puerto 3000 haga peticiones al backend
+       en puerto 8000 sin bloqueos de Same-Origin Policy. En producción:
+       CORS_ORIGINS se limitaría a ["https://mi-app.com"].
+
+  3. RUTEO VERSIONADO:
+        app.include_router(api_router, prefix="/api/v1")
+
+     → Todos los endpoints cuelgan de /api/v1. Si en el futuro se hace
+       un breaking change, se crea v2 y se mantiene v1 por compatibilidad.
+
+  4. HEALTH CHECK RAÍZ:
+        @app.get("/health")
+        async def health_check():
+            return {"status": "healthy", "service": "...", "version": "..."}
+
+     → Útil para Kubernetes livenessProbe / Docker healthchecks.
+
+--------------------------------------------------------------------------------
+11.2 CONFIGURACIÓN CENTRAL: /backend/app/core/config.py
+--------------------------------------------------------------------------------
+
+La clase Settings() lee variables de entorno con os.getenv(), con valores
+default para DEMO. No usa pydantic-settings para mantenerlo simple.
+
+PARÁMETROS IMPORTANTES:
+  • DATABASE_URL:      postgresql+asyncpg://user:pass@host:5432/db
+  • REDIS_URL:         redis://localhost:6379 (cache + Celery broker)
+  • SECRET_KEY / ALGORITHM:  Para JWT (futura implementación OAuth2)
+  • CORS_*:            Configuración de CORS
+  • RL_MODEL_VERSION:  PPO-VRI-DualReward-v4.2 (tracking de modelo)
+  • MAX_IRRIGATION_DEPTH_MM:  100.0 (hard safety limit)
+  • REPORT_OUTPUT_DIR: ./reports (carpeta de descargas)
+
+Singleton pattern:
+  settings = Settings() → Se importa globalmente en todos los módulos.
+
+--------------------------------------------------------------------------------
+11.3 BASE DE DATOS: /backend/app/core/database.py
+--------------------------------------------------------------------------------
+
+MODO DEMO (actual):
+  - init_db() solo escribe logs: "Database initialization (demo mode)"
+  - close_db() escribe logs.
+  - No hay conexión real a PostgreSQL; los datos se generan in-line en
+    cada endpoint.
+
+MODO PRODUCCIÓN (a implementar según comentarios del archivo):
+  - Motor asíncrono con SQLAlchemy 2.0 + asyncpg:
+        engine = create_async_engine(settings.DATABASE_URL, pool_size=20)
+  - AsyncSessionLocal con sessionmaker(expire_on_commit=False, class_=AsyncSession)
+  - Función get_db() como FastAPI dependency injection:
+        async def get_db():
+            async with AsyncSessionLocal() as session:
+                yield session
+  - En los endpoints: db: AsyncSession = Depends(get_db)
+
+EXTENSIONES POSTGRESL:
+  • TimescaleDB: convierte tablas sensor_telemetry en hypertables con
+    time_bucket() para agregados por minuto/hora/día (muy rápido).
+  • PostGIS: columnas geometry(Point, 4326) para ubicación GPS de
+    sensores y zonas (coberturas GIS).
+
+--------------------------------------------------------------------------------
+11.4 RUTEO Y ENDPOINTS: /backend/app/api/v1/__init__.py + endpoints/*
+--------------------------------------------------------------------------------
+
+PATRÓN DE ROUTERS ANIDADOS:
+
+  api_router (prefix: /api/v1)
+  ├─ health.router     (tags: ["Health"])                → /health, /ready
+  ├─ fields.router     (prefix:/fields, tags:["Fields"]) → GET /api/v1/fields...
+  ├─ sensors.router    (prefix:/sensors)                 → Telemetría IoT
+  ├─ rl_engine.router  (prefix:/rl-engine)               → Agente PPO RL
+  ├─ irrigation.router (prefix:/irrigation)              → Control HW VRI
+  └─ reports.router    (prefix:/reports)                 → Generación docs
+
+Cada archivo de endpoint sigue este patrón:
+
+  from fastapi import APIRouter
+  router = APIRouter()                    # ← Crea router
+
+  @router.get("/ruta", status_code=200)   # ← Decorador con método HTTP
+  async def handler_func(param: Tipo):    # ← Validación Pydantic automática
+      return result_dict                  # ← Respuesta JSON serializada
+
+DETALLE DE ENDPOINTS POR MÓDULO:
+
+  HEALTH (/api/v1)
+    GET  /health   → 200 OK {"status": "healthy", "version": "1.0.0"}
+    GET  /ready    → readiness check (DB + cache connected)
+
+  FIELDS (/api/v1/fields)
+    GET  /                      → Lista todos los AgriculturalField
+    GET  /{field_id}            → Detalle de 1 campo: nombre, cultivo, área
+    GET  /{field_id}/zones      → 4 ManagementZones con soil type + coords
+    GET  /{field_id}/zones/{z}  → Zona individual + stats hidráulicos
+
+  SENSORS (/api/v1/sensors)
+    GET  /                      → Inventario de sensores (TDR, IRT, rain)
+    GET  /{sensor_id}           → Metadata sensor: zona, tipo, calib date
+    POST /telemetry/ingest      → BATCH ingest (body: [{ts, value, ...}])
+    GET  /zone/{zone_id}        → Lecturas filtradas por zona (con rango
+                                  de fechas query params: ?start=ISO&end=ISO)
+
+  RL ENGINE (/api/v1/rl-engine)
+    POST /infer-vri-rates       → Inferencia PPO: body={zoneId, observations}
+                                  Retorna: decisionId, depthMm, shapValues[],
+                                  confidence, executionWindow (22:00-04:00)
+    GET  /decisions             → Historial paginado (?field_id=&status=)
+    POST /decisions/{id}/approve    → body: {approvedBy: "Agrónomo X"}
+    POST /decisions/{id}/override   → body: {depthMm, reason: "..."}
+    POST /retrain-policy        → Trigger Celery task reentrenamiento PPO
+
+  IRRIGATION (/api/v1/irrigation)
+    POST /execute-decision      → Envía PWM a válvulas VRI por zona
+    POST /manual-trigger        → Riego manual fuera de horario
+    GET  /status                → Estado de válvulas, presión de agua
+    GET  /schedule              → Próximos riegos en cola
+    POST /emergency-stop        → Cierre inmediato de todas las válvulas
+
+  REPORTS (/api/v1/reports)
+    POST /generate              → {format: "pdf", sections: [...]} → taskId
+    GET  /{id}/status           → progresivo: pending / processing / done
+    GET  /{id}/download         → FileResponse (stream de bytes)
+    GET  /history               → Historial de reportes generados
+    POST /schedule              → Programación CRON (diaria/semanal)
+    POST /what-if-export        → Exporta escenario de simulación a Excel
+
+--------------------------------------------------------------------------------
+11.5 CÓMO SE LEVANTA EL BACKEND
+--------------------------------------------------------------------------------
+
+Archivos involucrados:
+  - /backend/requirements.txt → FastAPI, uvicorn, asyncpg, SQLAlchemy,
+                                reportlab, pandas, numpy, redis, celery.
+  - /backend/.env             → Variables de entorno (DATABASE_URL, etc.)
+  - /backend/venv/            → Entorno virtual Python 3.11 aislado
+
+COMANDO DE INICIO (usado en esta sesión):
+    cd backend
+    .\venv\Scripts\Activate.ps1     (Windows PowerShell)
+    python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  → --reload activa watchfiles: cualquier cambio en *.py recarga la API.
+  → --host 0.0.0.0 permite acceso desde otros dispositivos de la red LAN.
+
+DOCUMENTACIÓN AUTOMÁTICA GENERADA POR FASTAPI:
+  - Swagger UI:      http://localhost:8000/docs
+  - ReDoc:           http://localhost:8000/redoc
+  - OpenAPI JSON:    http://localhost:8000/openapi.json
+
+Ambas interfaces documentan AUTOMÁTICAMENTE cada endpoint:
+  • Método HTTP y URL
+  • Parámetros de query / path / body con tipos Pydantic
+  • Códigos de respuesta (200, 201, 404, 422, 500)
+  • Botón "Try it out" para ejecutar requests directamente desde el navegador
+  • Schema de request y response con examples (si se definen)
+
+VALIDACIÓN AUTOMÁTICA:
+  Si un endpoint recibe body incorrecto, FastAPI retorna HTTP 422 con
+  detalles de validación (campo faltante, tipo incorrecto), SIN código
+  extra del desarrollador. Esto es gracias a Pydantic v2 integrado.
+
+CÓMO CONECTAR FRONTEND CON BACKEND (PENDIENTE):
+  El archivo /src/services/apiClient.ts ya está implementado usando
+  fetch() con baseUrl = import.meta.env.VITE_API_URL (http://localhost:8000).
+  Actualmente App.tsx usa datos mock; para conectar el backend real se
+  reemplazarían los INITIAL_* por llamadas:
+      const { data: zones } = await apiClient.getZones(field.id);
+  dentro de useEffect(() => { ... }, []) al montar el componente.
+
+================================================================================
+12. CONTACTO Y SOPORTE
 ================================================================================
 
 Para más información:

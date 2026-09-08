@@ -371,9 +371,9 @@ export const INITIAL_RL_DECISIONS: RLDecision[] = [
     rewardExpected: 14.8,
     explanation: {
       zoneId: 'zone-4-se',
-      dominantFeature: 'Canopy Temperature Stress (CWSI: 0.72)',
+      dominantFeature: 'Estrés Térmico de Dosel (CWSI: 0.72)',
       shapValues: [
-        { feature: 'Canopy Temp (+4.8°C vs Ambient)', impact: +0.48, description: 'Cierre estomático agudo detectado por termografía' },
+        { feature: 'Temp Dosel (+4.8°C vs Ambiente)', impact: +0.48, description: 'Cierre estomático agudo detectado por termografía' },
         { feature: 'Humedad 10-30cm (12.1% m3/m3)', impact: +0.36, description: 'Por debajo del 50% de agua disponible (PMP: 10%)' },
         { feature: 'Radar Precipitación 24h (3.2mm)', impact: -0.12, description: 'Lluvia leve no cubre déficit diario de ETc (6.8mm)' },
         { feature: 'Tarifa Eléctrica Valle', impact: +0.08, description: 'Horario nocturno optimiza costo de bombeo en 42%' }
@@ -400,7 +400,7 @@ export const INITIAL_RL_DECISIONS: RLDecision[] = [
       zoneId: 'zone-1-nw',
       dominantFeature: 'Alta Infiltración Arenosa + Estrés Térmico Moderado',
       shapValues: [
-        { feature: 'Déficit de Humedad Raíz (16.2%)', impact: +0.42, description: 'Suelo arenoso pierde retención rápidamente' },
+        { feature: 'Déficit de Humedad Radicular (16.2%)', impact: +0.42, description: 'Suelo arenoso pierde retención rápidamente' },
         { feature: 'CWSI Moderado (0.58)', impact: +0.31, description: 'Comienzo de estrés hídrico diurno' },
         { feature: 'Precipitación Radar Prevista (3.5mm)', impact: -0.15, description: 'Descontada del requerimiento neto bruto' }
       ],

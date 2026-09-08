@@ -296,13 +296,13 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
               )}
 
               {/* Sector Labels - white for dark contrast on colored zones */}
-              <text x="160" y="150" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 1 (NW)</text>
+              <text x="160" y="150" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 1 (NO)</text>
               <text x="160" y="168" fill="#f1f5f9" fontSize="10" textAnchor="middle">H: {zones[0].currentMoisture10cm}% | {zones[0].recommendedRateMm}mm</text>
 
               <text x="340" y="150" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 2 (NE)</text>
               <text x="340" y="168" fill="#f1f5f9" fontSize="10" textAnchor="middle">H: {zones[1].currentMoisture10cm}% | {zones[1].recommendedRateMm}mm</text>
 
-              <text x="160" y="340" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 3 (SW)</text>
+              <text x="160" y="340" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 3 (SO)</text>
               <text x="160" y="358" fill="#f1f5f9" fontSize="10" textAnchor="middle">H: {zones[2].currentMoisture10cm}% | {zones[2].recommendedRateMm}mm</text>
 
               <text x="340" y="340" fill="#ffffff" fontSize="13" fontWeight="bold" textAnchor="middle">ZONA 4 (SE)</text>

@@ -27,7 +27,7 @@ const NAV_ITEMS: Array<{
   { id: 'gis-map', label: '1. Gemelo Digital & Mapa GIS', icon: Layers, description: 'Vista central del campo agrícola' },
   { id: 'rl-engine', label: '2. Agente RL & Closed-Loop', icon: Cpu, description: 'Decisiones PPO y aprobaciones' },
   { id: 'telemetry', label: '3. Telemetría & TimescaleDB', icon: Activity, description: 'Gráficos de sensores en tiempo real' },
-  { id: 'what-if', label: '4. Simulador What-If', icon: Sliders, description: 'Escenarios de riego y pronóstico' },
+  { id: 'what-if', label: '4. Simulador Qué Pasaría Si', icon: Sliders, description: 'Escenarios de riego y pronóstico' },
   { id: 'reports', label: '5. Reportes PDF / Word / Excel', icon: Droplet, description: 'Generación y programación de informes' },
   { id: 'rbac-audit', label: '6. Roles & Auditoría SHA-256', icon: ShieldCheck, description: 'Gestión RBAC y trazabilidad' },
   { id: 'codebase', label: '7. Arquitectura & Código FastAPI', icon: RefreshCw, description: 'Documentación técnica integrada' }

@@ -85,7 +85,7 @@ export const RBACAuditConsole: React.FC<RBACAuditConsoleProps> = ({
                 <th className="p-3 text-center">Agrónomo</th>
                 <th className="p-3 text-center">Productor</th>
                 <th className="p-3 text-center">Técnico IoT</th>
-                <th className="p-3 text-center">Agente RL (Internal)</th>
+                <th className="p-3 text-center">Agente RL (Sistema Interno)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">

@@ -58,7 +58,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
             { id: 'architecture', label: '1. Pipeline & Flujo', icon: Boxes },
             { id: 'codebase', label: '2. Código Fuente Backend', icon: Terminal },
             { id: 'er_diagram', label: '3. Esquema ER & PostGIS', icon: Database },
-            { id: 'api_spec', label: '4. API Specification', icon: Server }
+            { id: 'api_spec', label: '4. Especificación de API', icon: Server }
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeSubTab === tab.id;
@@ -119,15 +119,15 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold font-mono">
                   02
                 </div>
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white">Tensor Fusion & XAI</h4>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white">Fusión Tensor & XAI</h4>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
                   • Filtro Isolation Forest<br />
                   • Cálculo CWSI & VPD<br />
                   • Normalización fenológica<br />
-                  • Tensor [Zones, 12 Feats]
+                  • Tensor [Zonas, 12 Caracts.]
                 </p>
                 <span className="text-[10px] text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded block text-center border border-purple-500/30">
-                  NumPy / SciPy Pipeline
+                  Pipeline NumPy / SciPy
                 </span>
               </div>
 
@@ -136,12 +136,12 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold font-mono">
                   03
                 </div>
-                <h4 className="text-xs font-bold text-emerald-400">PPO / SAC Agent Core</h4>
+                <h4 className="text-xs font-bold text-emerald-400">Núcleo Agente PPO / SAC</h4>
                 <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
                   • Inferencia de política continua<br />
                   • Recompensa multi-objetivo<br />
                   • Explicabilidad SHAP<br />
-                  • Guardrail Modo Seguro
+                  • Salvaguarda Modo Seguro
                 </p>
                 <span className="text-[10px] text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded block text-center border border-emerald-500/40 font-semibold">
                   Stable-Baselines3 / Ray
@@ -161,7 +161,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                   • Registro en Auditoría
                 </p>
                 <span className="text-[10px] text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded block text-center border border-amber-500/30">
-                  Modbus / FieldNET API
+                  API Modbus / FieldNET
                 </span>
               </div>
 
@@ -170,7 +170,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                 <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold font-mono">
                   05
                 </div>
-                <h4 className="text-xs font-bold text-blue-400">Ciclo Cerrado (Twin)</h4>
+                <h4 className="text-xs font-bold text-blue-400">Ciclo Cerrado (Gemelo)</h4>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
                   • Lectura a 45-60 min<br />
                   • Error Δθ = Real - Modelo<br />
@@ -178,7 +178,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
                   • Sincronización continua
                 </p>
                 <span className="text-[10px] text-blue-300 bg-blue-950/80 px-2 py-0.5 rounded block text-center border border-blue-500/40 font-semibold">
-                  Celery Worker Task
+                  Tarea de Trabajador Celery
                 </span>
               </div>
 
@@ -219,17 +219,24 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
 
             {/* Category Filter */}
             <div className="flex flex-wrap gap-1">
-              {['all', 'backend', 'database', 'ml_rl', 'infrastructure', 'tests'].map((cat) => (
+              {[
+                { key: 'all', label: 'TODOS' },
+                { key: 'backend', label: 'BACKEND' },
+                { key: 'database', label: 'BASE DE DATOS' },
+                { key: 'ml_rl', label: 'ML / RL' },
+                { key: 'infrastructure', label: 'INFRAESTRUCTURA' },
+                { key: 'tests', label: 'PRUEBAS' }
+              ].map((cat) => (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
+                  key={cat.key}
+                  onClick={() => setSelectedCategory(cat.key)}
                   className={`px-2 py-0.5 text-[10px] rounded font-medium transition-all ${
-                    selectedCategory === cat
+                    selectedCategory === cat.key
                       ? 'bg-emerald-600 text-white font-bold'
                       : 'bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {cat.toUpperCase()}
+                  {cat.label}
                 </button>
               ))}
             </div>
@@ -306,7 +313,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
             <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
               <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-1.5">
                 <span className="font-mono font-bold text-xs text-emerald-400">agricultural_fields</span>
-                <span className="text-[10px] text-slate-500">PostGIS Entity</span>
+                <span className="text-[10px] text-slate-500">Entidad PostGIS</span>
               </div>
               <ul className="text-xs font-mono space-y-1 text-slate-700 dark:text-slate-300">
                 <li><span className="text-blue-400">id:</span> String(36) [PK]</li>
@@ -322,7 +329,7 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
             <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
               <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-1.5">
                 <span className="font-mono font-bold text-xs text-teal-400">management_zones</span>
-                <span className="text-[10px] text-slate-500">PostGIS VRI Sector</span>
+                <span className="text-[10px] text-slate-500">Sector VRI PostGIS</span>
               </div>
               <ul className="text-xs font-mono space-y-1 text-slate-700 dark:text-slate-300">
                 <li><span className="text-blue-400">id:</span> String(36) [PK]</li>
@@ -367,14 +374,14 @@ export const ArchitectureAndCodeViewer: React.FC = () => {
 
           <div className="space-y-2.5 text-xs font-mono">
             {[
-              { method: 'POST', path: '/api/v1/auth/login', desc: 'OAuth2 JWT token exchange with RBAC claims' },
-              { method: 'GET', path: '/api/v1/fields/{field_id}/zones', desc: 'Returns PostGIS boundaries and current soil hydraulic status' },
-              { method: 'POST', path: '/api/v1/sensors/telemetry/ingest', desc: 'High-throughput TimescaleDB batch ingestion with Isolation Forest anomaly gate' },
-              { method: 'POST', path: '/api/v1/rl/infer-vri-rates', desc: 'Executes PPO policy network forward pass and returns SHAP attributions' },
-              { method: 'POST', path: '/api/v1/irrigation/execute-decision', desc: 'Dispatches VRI variable dosing command to hardware gateway' },
-              { method: 'POST', path: '/api/v1/digital-twin/what-if', desc: 'Simulates forward multi-day water balance with Green-Ampt infiltration' },
-              { method: 'GET', path: '/api/v1/reports/export/{format}', desc: 'Generates and downloads PDF, Word (.docx), Excel (.xlsx) or CSV' },
-              { method: 'WS', path: '/ws/telemetry/{field_id}', desc: 'Real-time WebSocket stream for sub-second UI updates' }
+              { method: 'POST', path: '/api/v1/auth/login', desc: 'Intercambio de token JWT OAuth2 con claims de RBAC' },
+              { method: 'GET', path: '/api/v1/fields/{field_id}/zones', desc: 'Devuelve límites PostGIS y estado hidráulico actual del suelo' },
+              { method: 'POST', path: '/api/v1/sensors/telemetry/ingest', desc: 'Ingesta lote de alto rendimiento TimescaleDB con puerta de anomalías Isolation Forest' },
+              { method: 'POST', path: '/api/v1/rl/infer-vri-rates', desc: 'Ejecuta forward pass de red de política PPO y devuelve atribuciones SHAP' },
+              { method: 'POST', path: '/api/v1/irrigation/execute-decision', desc: 'Despacha comando de dosis variable VRI a la pasarela de hardware' },
+              { method: 'POST', path: '/api/v1/digital-twin/what-if', desc: 'Simula balance hídrico multi-día progresivo con infiltración Green-Ampt' },
+              { method: 'GET', path: '/api/v1/reports/export/{format}', desc: 'Genera y descarga PDF, Word (.docx), Excel (.xlsx) o CSV' },
+              { method: 'WS', path: '/ws/telemetry/{field_id}', desc: 'Flujo WebSocket en tiempo real para actualizaciones UI de sub-segundo' }
             ].map((ep, i) => (
               <div key={i} className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5">

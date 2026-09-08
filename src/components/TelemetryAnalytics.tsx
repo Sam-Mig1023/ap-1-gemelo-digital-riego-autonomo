@@ -256,7 +256,7 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
                       {anomalyEval.isAnomaly ? (
                         <span className="flex items-center gap-1 text-rose-400 font-semibold text-[11px]">
                           <AlertTriangle className="w-3.5 h-3.5" />
-                          Anomalía (Safe Mode)
+                          Anomalía (Modo Seguro)
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-emerald-400 font-semibold text-[11px]">

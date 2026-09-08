@@ -244,9 +244,11 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                           ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                           : dec.status === 'pending'
                           ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                          : 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                          : dec.status === 'feedback_verified'
+                          ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                          : 'bg-slate-500/20 text-slate-300 border-slate-500/40'
                       }`}>
-                        {dec.status.toUpperCase()}
+                        {dec.status === 'approved' ? 'APROBADA' : dec.status === 'pending' ? 'PENDIENTE' : dec.status === 'feedback_verified' ? 'VERIFICADA' : dec.status.toUpperCase()}
                       </span>
                     </div>
 
@@ -259,9 +261,9 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                       </div>
                       <div className="text-right">
                         <span className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
-                          Conf: {Math.round(dec.confidenceScore * 100)}%
+                          Confianza: {Math.round(dec.confidenceScore * 100)}%
                         </span>
-                        <p className="text-[10px] text-slate-500">{dec.executionWindowHours.start} - {dec.executionWindowHours.end}</p>
+                        <p className="text-[10px] text-slate-500">Ventana: {dec.executionWindowHours.start} - {dec.executionWindowHours.end}</p>
                       </div>
                     </div>
                   </div>
@@ -308,7 +310,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
                         className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-medium border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all"
                       >
                         <Edit3 className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Override Manual</span>
+                        <span>Anulación Manual</span>
                       </button>
                     </>
                   )}
@@ -381,7 +383,7 @@ export const RLDecisionConsole: React.FC<RLDecisionConsoleProps> = ({
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-amber-400" />
-                <span>Override Manual de Dosis VRI</span>
+                <span>Anulación Manual de Dosis VRI</span>
               </h3>
               <button
                 onClick={() => setOverrideModalOpen(false)}

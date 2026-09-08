@@ -226,10 +226,10 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Programación de Reportes Automáticos (Celery Beat Daemon)</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Programación de Reportes Automáticos (Proceso Celery Beat)</h3>
           </div>
           <span className="text-xs text-slate-600 dark:text-slate-400">
-            Despacho asíncrono vía worker Redis/Celery
+            Despacho asíncrono vía trabajadores Redis/Celery
           </span>
         </div>
 
@@ -255,7 +255,9 @@ export const ReportExportStudio: React.FC<ReportExportStudioProps> = ({
                       {rep.format}
                     </span>
                   </td>
-                  <td className="p-3 capitalize text-slate-700 dark:text-slate-300">{rep.frequency.replace('_', ' ')}</td>
+                  <td className="p-3 capitalize text-slate-700 dark:text-slate-300">
+                    {rep.frequency === 'daily' ? 'Diario' : rep.frequency === 'weekly' ? 'Semanal' : rep.frequency === 'monthly' ? 'Mensual' : rep.frequency.replace('_', ' ')}
+                  </td>
                   <td className="p-3 text-slate-600 dark:text-slate-400 font-mono text-[11px]">
                     {rep.recipients.join(', ')}
                   </td>

@@ -67,7 +67,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-              Simulador "What-If" del Gemelo Digital (Forward Physics Sandbox)
+              Simulador "Qué Pasaría Si" del Gemelo Digital (Entorno de Simulación Física)
             </h2>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
               Evalúa escenarios hipotéticos de riego y clima sin alterar el sistema físico real en campo
