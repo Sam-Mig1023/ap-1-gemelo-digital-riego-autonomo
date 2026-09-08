@@ -35,68 +35,68 @@ export const ClosedLoopFeedbackModal: React.FC<ClosedLoopFeedbackModalProps> = (
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-5 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-500/80 dark:bg-slate-950/80 backdrop-blur-md p-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-5 shadow-2xl">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/40 flex items-center justify-center">
               <FileCheck2 className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Ciclo Cerrado: Calibración Post-Riego (45-60 min)</h3>
-              <p className="text-xs text-slate-400">{zone.name} • Dosis: {decision.recommendedDepthMm} mm</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Ciclo Cerrado: Calibración Post-Riego (45-60 min)</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400">{zone.name} • Dosis: {decision.recommendedDepthMm} mm</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-sm">✕</button>
+          <button onClick={onClose} className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">✕</button>
         </div>
 
         {/* Comparison Metrics */}
         <div className="grid grid-cols-2 gap-3 text-xs">
           
-          <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1">
-            <span className="text-slate-400 block text-[11px]">Humedad Simulada (Twin):</span>
+          <div className="bg-slate-50 dark:bg-slate-950/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+            <span className="text-slate-600 dark:text-slate-400 block text-[11px]">Humedad Simulada (Twin):</span>
             <span className="text-xl font-bold font-mono text-blue-400">{feedback.expectedMoisturePost}%</span>
-            <p className="text-[10px] text-slate-500">Basada en balance Green-Ampt</p>
+            <p className="text-[10px] text-slate-600 dark:text-slate-500">Basada en balance Green-Ampt</p>
           </div>
 
-          <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1">
-            <span className="text-slate-400 block text-[11px]">Humedad Medida (Sensor TDR):</span>
+          <div className="bg-slate-50 dark:bg-slate-950/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+            <span className="text-slate-600 dark:text-slate-400 block text-[11px]">Humedad Medida (Sensor TDR):</span>
             <div className="flex items-center gap-2">
               <input
                 type="number"
                 step="0.1"
                 value={measuredMoisturePost}
                 onChange={(e) => setMeasuredMoisturePost(parseFloat(e.target.value) || zone.currentMoisture10cm)}
-                className="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-white font-mono font-bold text-sm focus:outline-none focus:border-emerald-500"
+                className="w-20 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2 py-0.5 text-slate-900 dark:text-white font-mono font-bold text-sm focus:outline-none focus:border-emerald-500"
               />
               <span className="text-emerald-400 font-bold text-sm">%</span>
             </div>
-            <p className="text-[10px] text-slate-500">Transductor 10cm post-riego</p>
+            <p className="text-[10px] text-slate-600 dark:text-slate-500">Transductor 10cm post-riego</p>
           </div>
 
         </div>
 
         {/* Residual Error & Calibration Delta */}
-        <div className="bg-slate-950/90 p-4 rounded-xl border border-slate-800 space-y-2.5 text-xs">
+        <div className="bg-slate-50 dark:bg-slate-950/90 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5 text-xs">
           
           <div className="flex justify-between items-center">
-            <span className="text-slate-300 font-semibold">Error Residual (Δθ = Real - Simulado):</span>
+            <span className="text-slate-700 dark:text-slate-300 font-semibold">Error Residual (Δθ = Real - Simulado):</span>
             <span className={`font-mono font-bold ${Math.abs(feedback.residualError) > 1.5 ? 'text-amber-400' : 'text-emerald-400'}`}>
               {feedback.residualError > 0 ? `+${feedback.residualError}` : feedback.residualError}% m³/m³
             </span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-slate-300 font-semibold">Eficiencia de Infiltración Real:</span>
+            <span className="text-slate-700 dark:text-slate-300 font-semibold">Eficiencia de Infiltración Real:</span>
             <span className="font-mono font-bold text-teal-300">
               {Math.round(feedback.infiltrationEfficiency * 100)}%
             </span>
           </div>
 
-          <div className="flex justify-between items-center border-t border-slate-800/80 pt-2">
-            <span className="text-slate-300 font-semibold">Ajuste Ksat (Conductividad):</span>
+          <div className="flex justify-between items-center border-t border-slate-200/80 dark:border-slate-800/80 pt-2">
+            <span className="text-slate-700 dark:text-slate-300 font-semibold">Ajuste Ksat (Conductividad):</span>
             <span className="font-mono font-bold text-purple-300">
               {zone.saturatedK} → {updatedZone.saturatedK} mm/h ({feedback.ksatAdjustmentPct > 0 ? `+${feedback.ksatAdjustmentPct}` : feedback.ksatAdjustmentPct}%)
             </span>
@@ -116,10 +116,10 @@ export const ClosedLoopFeedbackModal: React.FC<ClosedLoopFeedbackModalProps> = (
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+        <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
           <button
             onClick={onClose}
-            className="px-3.5 py-1.5 text-xs text-slate-400 hover:text-white"
+            className="px-3.5 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           >
             Cerrar
           </button>

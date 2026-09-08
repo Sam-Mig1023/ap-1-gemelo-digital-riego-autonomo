@@ -78,21 +78,21 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
     <div className="space-y-6">
       
       {/* Header Bar */}
-      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-lg">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-lg">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center">
             <Activity className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white">Telemetría de Sensores & Series Temporales TimescaleDB</h2>
-            <p className="text-xs text-slate-400">
-              Datos transmitidos cada 15 min vía LoRaWAN/NB-IoT • Zona activa: <strong className="text-white">{selectedZone.name}</strong>
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">Telemetría de Sensores & Series Temporales TimescaleDB</h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Datos transmitidos cada 15 min vía LoRaWAN/NB-IoT • Zona activa: <strong className="text-slate-900 dark:text-white">{selectedZone.name}</strong>
             </p>
           </div>
         </div>
 
         {/* Time Range Selector */}
-        <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+        <div className="flex items-center bg-slate-50 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
           {(['24h', '7d', '30d'] as const).map((r) => (
             <button
               key={r}
@@ -100,7 +100,7 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
               className={`px-3 py-1 font-medium rounded transition-all ${
                 timeRange === r
                   ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               {r.toUpperCase()}
@@ -113,13 +113,13 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Chart 1: Multi-depth Soil Moisture Dynamics */}
-        <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-3 shadow-xl">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl space-y-3 shadow-xl">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-blue-400" />
               Dinámica de Humedad Volumétrica Multiprofundidad (%)
             </h3>
-            <span className="text-[10px] text-slate-400 font-mono">Sondas TDR / FDR</span>
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">Sondas TDR / FDR</span>
           </div>
 
           <div className="h-64 w-full">
@@ -147,9 +147,9 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
         </div>
 
         {/* Chart 2: Canopy Thermal IRT vs Ambient Temp & CWSI */}
-        <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-3 shadow-xl">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl space-y-3 shadow-xl">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Thermometer className="w-4 h-4 text-amber-400" />
               Termografía Infrarroja de Dosel (IRT) vs Aire (°C)
             </h3>
@@ -188,20 +188,20 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
       </div>
 
       {/* Telemetry Stream Ingestion Table & Anomaly Detector */}
-      <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-4 shadow-xl">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl space-y-4 shadow-xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <Radio className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-bold text-white">Transductores Activos & Detector de Anomalías (Isolation Forest)</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Transductores Activos & Detector de Anomalías (Isolation Forest)</h3>
           </div>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-600 dark:text-slate-400">
             Filtro de calidad de datos antes de ingresar al buffer del agente RL
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
               <tr>
                 <th className="p-3">ID Sensor</th>
                 <th className="p-3">Tipo / Transductor</th>
@@ -213,29 +213,29 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
                 <th className="p-3">Estado RL</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800 text-slate-300">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               {sensors.map((sensor) => {
                 const anomalyEval = evaluateSensorAnomalies(sensor);
                 const zone = zones.find(z => z.id === sensor.zoneId);
 
                 return (
-                  <tr key={sensor.id} className="hover:bg-slate-800/50 transition-colors">
-                    <td className="p-3 font-mono font-bold text-white flex items-center gap-1.5">
+                  <tr key={sensor.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="p-3 font-mono font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-400" />
                       {sensor.sensorId}
                     </td>
-                    <td className="p-3 capitalize text-slate-300">
+                    <td className="p-3 capitalize text-slate-700 dark:text-slate-300">
                       {sensor.sensorType.replace('_', ' ')}
                     </td>
-                    <td className="p-3 text-slate-300">{zone?.name.split('(')[0] || sensor.zoneId}</td>
-                    <td className="p-3 font-mono text-slate-200">
+                    <td className="p-3 text-slate-700 dark:text-slate-300">{zone?.name.split('(')[0] || sensor.zoneId}</td>
+                    <td className="p-3 font-mono text-slate-800 dark:text-slate-200">
                       {sensor.readings.volumetricWaterContent_10cm !== undefined
                         ? `10cm: ${sensor.readings.volumetricWaterContent_10cm}% | 30cm: ${sensor.readings.volumetricWaterContent_30cm}%`
                         : sensor.readings.canopyTemperatureC !== undefined
                         ? `Dosel: ${sensor.readings.canopyTemperatureC}°C`
                         : `Amb: ${sensor.readings.ambientAirTempC}°C | Rad: ${sensor.readings.solarRadiationWm2} W/m²`}
                     </td>
-                    <td className="p-3 font-mono text-slate-300">
+                    <td className="p-3 font-mono text-slate-700 dark:text-slate-300">
                       {sensor.batteryLevel}% • {sensor.rssi} dBm
                     </td>
                     <td className="p-3">
@@ -247,7 +247,7 @@ export const TelemetryAnalytics: React.FC<TelemetryAnalyticsProps> = ({
                       <span className={`px-2 py-0.5 rounded font-mono font-semibold ${
                         anomalyEval.anomalyScore > 0.6
                           ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                          : 'bg-slate-800 text-slate-400'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                       }`}>
                         {anomalyEval.anomalyScore}
                       </span>

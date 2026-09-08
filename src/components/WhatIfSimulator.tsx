@@ -60,16 +60,16 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
     <div className="space-y-6">
       
       {/* Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-purple-950/50 border border-purple-400/40">
             <Sliders className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
               Simulador "What-If" del Gemelo Digital (Forward Physics Sandbox)
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
               Evalúa escenarios hipotéticos de riego y clima sin alterar el sistema físico real en campo
             </p>
           </div>
@@ -77,14 +77,14 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
 
         {/* Zone Selector */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-medium">Zona Objetivo:</span>
+          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Zona Objetivo:</span>
           <select
             value={selectedZone.id}
             onChange={(e) => {
               const z = zones.find(item => item.id === e.target.value);
               if (z) onSelectZone(z);
             }}
-            className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-semibold text-white focus:outline-none focus:border-purple-500"
+            className="bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
           >
             {zones.map((z) => (
               <option key={z.id} value={z.id}>
@@ -99,9 +99,9 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         
         {/* Slider 1: Simulated Irrigation */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2 shadow-md">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-2 shadow-md">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+            <span className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-1.5">
               <Droplet className="w-3.5 h-3.5 text-blue-400" />
               Riego Simulado Día 1:
             </span>
@@ -116,13 +116,13 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
             onChange={(e) => setIrrigationMm(parseFloat(e.target.value))}
             className="w-full accent-blue-500 cursor-pointer"
           />
-          <p className="text-[10px] text-slate-400">Dosis única aplicada al inicio de la ventana</p>
+          <p className="text-[10px] text-slate-600 dark:text-slate-400">Dosis única aplicada al inicio de la ventana</p>
         </div>
 
         {/* Slider 2: Rain Factor */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2 shadow-md">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-2 shadow-md">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+            <span className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-1.5">
               <CloudRain className="w-3.5 h-3.5 text-purple-400" />
               Factor Lluvia Radar:
             </span>
@@ -137,13 +137,13 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
             onChange={(e) => setRainFactor(parseFloat(e.target.value))}
             className="w-full accent-purple-500 cursor-pointer"
           />
-          <p className="text-[10px] text-slate-400">0x = Sequía total, 1x = Normal, 2x = Doble lluvia</p>
+          <p className="text-[10px] text-slate-600 dark:text-slate-400">0x = Sequía total, 1x = Normal, 2x = Doble lluvia</p>
         </div>
 
         {/* Slider 3: Heatwave anomaly */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2 shadow-md">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-2 shadow-md">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+            <span className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-1.5">
               <Sun className="w-3.5 h-3.5 text-amber-400" />
               Ola de Calor (+ΔT):
             </span>
@@ -158,13 +158,13 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
             onChange={(e) => setHeatWaveDegC(parseFloat(e.target.value))}
             className="w-full accent-amber-500 cursor-pointer"
           />
-          <p className="text-[10px] text-slate-400">Incrementa ET0 diaria y demanda transpiratoria</p>
+          <p className="text-[10px] text-slate-600 dark:text-slate-400">Incrementa ET0 diaria y demanda transpiratoria</p>
         </div>
 
         {/* Slider 4: Horizon days */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2 shadow-md">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-2 shadow-md">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+            <span className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-1.5">
               <BarChart2 className="w-3.5 h-3.5 text-emerald-400" />
               Horizonte de Proyección:
             </span>
@@ -179,7 +179,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
             onChange={(e) => setHorizonDays(parseInt(e.target.value))}
             className="w-full accent-emerald-500 cursor-pointer"
           />
-          <p className="text-[10px] text-slate-400">Días hacia adelante en simulación física</p>
+          <p className="text-[10px] text-slate-600 dark:text-slate-400">Días hacia adelante en simulación física</p>
         </div>
 
       </div>
@@ -187,10 +187,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
       {/* Outcome Cards Deck */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-1">
-          <span className="text-xs text-slate-400 font-medium">Estrés Máximo Proyectado (CWSI):</span>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-1">
+          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Estrés Máximo Proyectado (CWSI):</span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-white">{maxStressDay.cwsi}</span>
+            <span className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{maxStressDay.cwsi}</span>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
               maxStressDay.cwsi > 0.5 ? 'bg-rose-500/20 text-rose-300' : 'bg-emerald-500/20 text-emerald-300'
             }`}>
@@ -199,34 +199,34 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-1">
-          <span className="text-xs text-slate-400 font-medium">Impacto Estimado en Rendimiento:</span>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-1">
+          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Impacto Estimado en Rendimiento:</span>
           <div className="flex items-baseline gap-2">
             <span className={`text-2xl font-bold font-mono ${totalYieldImpact > 4 ? 'text-rose-400' : 'text-emerald-400'}`}>
               -{totalYieldImpact}%
             </span>
-            <span className="text-xs text-slate-400 font-medium">Modelo Ky = 1.25</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Modelo Ky = 1.25</span>
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-1">
-          <span className="text-xs text-slate-400 font-medium">Pérdida por Percolación Profunda:</span>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-1">
+          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Pérdida por Percolación Profunda:</span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold font-mono text-blue-400">{totalDrainageLoss.toFixed(1)} mm</span>
-            <span className="text-xs text-slate-400 font-medium">Sobre Capacidad Campo</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Sobre Capacidad Campo</span>
           </div>
         </div>
 
       </div>
 
       {/* Forward Simulation Chart */}
-      <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-4 shadow-xl">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-purple-400" />
             Curva Predictiva de Balance Hídrico y Estrés del Cultivo
           </h3>
-          <span className="text-xs text-slate-400 font-mono">Modelo Green-Ampt + FAO-56 Dual</span>
+          <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">Modelo Green-Ampt + FAO-56 Dual</span>
         </div>
 
         <div className="h-72 w-full">
