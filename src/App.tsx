@@ -33,6 +33,7 @@ import { ReportExportStudio } from './components/ReportExportStudio';
 import { RBACAuditConsole } from './components/RBACAuditConsole';
 import { ArchitectureAndCodeViewer } from './components/ArchitectureAndCodeViewer';
 import { ClosedLoopFeedbackModal } from './components/ClosedLoopFeedbackModal';
+import { AgronomicChatbot } from './components/AgronomicChatbot';
 
 export default function App() {
   useTheme();
@@ -369,6 +370,15 @@ export default function App() {
             Gemelo Digital de Ciclo Cerrado para Riego Autónomo de Tasa Variable (VRI) • Fusión de Humedad del Suelo, IRT de Dosel y Radar Meteorológico con RL PPO
           </p>
         </footer>
+
+        {/* Chatbot Agronómico con Groq y Voz (STT/TTS) */}
+        <AgronomicChatbot
+          field={field}
+          zones={zones}
+          decisions={decisions}
+          sensors={sensors}
+          radarCells={radarCells}
+        />
 
       </div>
     </div>
