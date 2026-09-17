@@ -38,7 +38,7 @@ def generar_pdf(usuario: str = "Sistema") -> bytes:
                                   alignment=TA_CENTER)
 
     # ── Encabezado ──────────────────────────────────────────────────────────────
-    story.append(Paragraph("🌾 VRI DIGITAL TWIN — SISTEMA DE RIEGO AUTÓNOMO", titulo_style))
+    story.append(Paragraph("VRI DIGITAL TWIN — SISTEMA DE RIEGO AUTÓNOMO", titulo_style))
     story.append(Paragraph("Reporte Ejecutivo de Operaciones", sub_style))
     story.append(Paragraph(
         f"Generado por: <b>{usuario}</b>  |  Fecha: {datetime.now().strftime('%d/%m/%Y %H:%M')}",

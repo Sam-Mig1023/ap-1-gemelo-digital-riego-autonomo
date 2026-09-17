@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 import pydeck as pdk
 import database as db
+from .theme import status_colors
 
 # Bbox del campo (mismo polígono que src/data/mockData.ts del frontend React)
 CAMPO_LNG_W, CAMPO_LNG_E = -75.7365, -75.7255
@@ -48,10 +49,14 @@ POLIGONOS_ZONA = {
 
 
 def _color_cwsi(cwsi: float) -> list[int]:
+    colors = status_colors()
     if cwsi >= 0.6:
+        # Rojo (#dc2626) en formato RGB
         return [220, 38, 38, 200]
     if cwsi >= 0.3:
-        return [245, 158, 11, 200]
+        # Ámbar (#d97706) en formato RGB
+        return [217, 119, 6, 200]
+    # Verde (#16a34a) en formato RGB
     return [22, 163, 74, 200]
 
 
@@ -108,21 +113,21 @@ def mostrar_gemelo_3d(zonas: list[dict] | None = None):
         st.warning("No hay zonas en SQLite para el gemelo 3D.")
         return
 
-    st.markdown("### 📍 Visualización georreferenciada 3D — Campo San Pablo (Ica)")
+    st.markdown("### Visualización georreferenciada 3D — Campo San Pablo (Ica)")
 
     criticos = sum(1 for z in zonas if float(z.get("cwsi") or 0) >= 0.6)
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("🌾 Zonas", len(zonas))
-    c2.metric("📐 Área", f"{sum(float(z.get('area_ha') or 0) for z in zonas):.1f} ha")
-    c3.metric("🌡️ CWSI medio", f"{sum(float(z.get('cwsi') or 0) for z in zonas) / len(zonas):.2f}")
-    c4.metric("🚨 Zonas en crítico", criticos)
+    c1.metric("Zonas", len(zonas))
+    c2.metric("Área", f"{sum(float(z.get('area_ha') or 0) for z in zonas):.1f} ha")
+    c3.metric("CWSI medio", f"{sum(float(z.get('cwsi') or 0) for z in zonas) / len(zonas):.2f}")
+    c4.metric("Zonas en crítico", criticos)
 
     st.info("""
-    📖 **Leyenda del Gemelo 3D** (mismo criterio que el educativo del profe):
-    - 📏 **Altura de columna** = magnitud de la métrica elegida (CWSI, humedad o dosis RL)
-    - 🔴 **Rojo** = CWSI ≥ 0.60 → estrés crítico
-    - 🟡 **Ámbar** = CWSI 0.30–0.59 → vigilancia
-    - 🟢 **Verde** = CWSI < 0.30 → normal
+    **Leyenda del Gemelo 3D** (mismo criterio que el educativo del profe):
+    - **Altura de columna** = magnitud de la métrica elegida (CWSI, humedad o dosis RL)
+    - **Rojo** = CWSI ≥ 0.60 → estrés crítico
+    - **Ámbar** = CWSI 0.30–0.59 → vigilancia
+    - **Verde** = CWSI < 0.30 → normal
     - Arrastra el mapa: inclinación (`pitch`) y rotación (`bearing`) como en el gemelo educativo.
     """)
 
@@ -185,10 +190,10 @@ def mostrar_gemelo_3d(zonas: list[dict] | None = None):
             <b>{nombre}</b><br/>
             <small>Sector {sector} · {area_ha} ha · {tipo_suelo}</small>
             <hr style="margin: 5px 0;"/>
-            🌡️ CWSI: <b>{cwsi}</b> ({nivel_riesgo})<br/>
-            💧 Humedad 10 cm: <b>{humedad10} %</b><br/>
-            💦 Dosis RL: <b>{dosis_mm} mm</b><br/>
-            📏 Elevación ({valor})
+            CWSI: <b>{cwsi}</b> ({nivel_riesgo})<br/>
+            Humedad 10 cm: <b>{humedad10} %</b><br/>
+            Dosis RL: <b>{dosis_mm} mm</b><br/>
+            Elevación ({valor})
         </div>
         """,
         "style": {"backgroundColor": "white", "color": "#1e293b", "borderRadius": "8px"},
@@ -201,7 +206,7 @@ def mostrar_gemelo_3d(zonas: list[dict] | None = None):
     )
     st.pydeck_chart(mapa, use_container_width=True)
 
-    st.markdown("### 📋 Resumen georreferenciado por zona")
+    st.markdown("### Resumen georreferenciado por zona")
     mostrar = df[[
         "sector", "nombre", "latitud", "longitud", "cwsi",
         "humedad10", "dosis_mm", "nivel_riesgo",
@@ -212,6 +217,7 @@ def mostrar_gemelo_3d(zonas: list[dict] | None = None):
     ]
 
     def colorear_nivel(fila):
+        colors = status_colors()
         if fila["Nivel"] == "CRÍTICO":
             return ["background-color: #fee2e2"] * len(fila)
         if fila["Nivel"] == "VIGILANCIA":

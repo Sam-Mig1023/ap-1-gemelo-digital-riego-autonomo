@@ -141,22 +141,23 @@ def mostrar_login():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("""
-        <div style='text-align:center; padding:30px 0 10px 0'>
-            <img src='https://img.icons8.com/fluency/96/sprout.png' width='72'/>
-            <h1 style='color:#0f172a; margin-top:8px'>VRI Digital Twin</h1>
-            <p style='color:#64748b'>Riego Variable Autónomo · Agente RL + Gemelo Digital</p>
+        <div style='text-align:center;padding:40px 0 20px 0'>
+            <h1 style='font-size:1.8rem;font-weight:700;margin-bottom:4px'>VRI Digital Twin</h1>
+            <p style='opacity:.55;font-size:.9rem'>
+                Sistema de Riego Variable Autónomo · Gemelo Digital
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
         with st.form("login_form"):
-            st.markdown("### 🔐 Iniciar Sesión")
+            st.markdown("#### Iniciar sesión")
             username = st.text_input("Usuario", placeholder="Ingrese su usuario")
             password = st.text_input("Contraseña", type="password", placeholder="Contraseña")
             submit = st.form_submit_button("Ingresar", use_container_width=True)
 
             if submit:
                 if not username or not password:
-                    st.error("Complete usuario y contraseña")
+                    st.error("Complete usuario y contraseña.")
                 else:
                     result = login(username, password)
                     if result:
@@ -168,17 +169,17 @@ def mostrar_login():
                         })
                         st.rerun()
                     else:
-                        st.error("❌ Usuario o contraseña incorrectos")
+                        st.error("Usuario o contraseña incorrectos.")
 
-        st.info("""
-**Usuarios de demostración:**
-
+        st.markdown("---")
+        st.caption("**Usuarios de demostración**")
+        st.markdown("""
 | Usuario | Contraseña | Rol |
 |---|---|---|
-| `admin` | `admin123` | 👤 Administrador |
-| `agronomo` | `agro123` | 🌿 Agrónomo |
-| `productor` | `prod123` | 🏭 Productor |
-| `tecnico` | `tec123` | 🔧 Técnico |
+| `admin` | `admin123` | Administrador |
+| `agronomo` | `agro123` | Agrónomo |
+| `productor` | `prod123` | Productor |
+| `tecnico` | `tec123` | Técnico |
 """)
 
 

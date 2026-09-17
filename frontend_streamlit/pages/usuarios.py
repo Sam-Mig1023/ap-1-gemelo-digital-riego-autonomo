@@ -8,26 +8,26 @@ from modulos.decoradores import requiere_permiso
 
 @requiere_permiso("gestionar_usuarios")
 def render():
-    st.title("👥 Gestión de Usuarios")
+    st.title("Gestión de Usuarios")
     usuario = st.session_state.usuario
 
-    st.subheader("📋 Usuarios del Sistema")
+    st.subheader("Usuarios del Sistema")
     df = db.get_all_users()
     show = df.copy()
-    show["activo"] = show["activo"].apply(lambda x: "✅ Activo" if x == 1 else "❌ Inactivo")
+    show["activo"] = show["activo"].apply(lambda x: "Activo" if x == 1 else "Inactivo")
     st.dataframe(show, use_container_width=True, hide_index=True)
 
     st.divider()
-    st.subheader("🔑 Permisos por Rol")
+    st.subheader("Permisos por Rol")
     filas = []
     for rol, perms in PERMISOS.items():
         fila = {"Rol": rol}
-        fila.update({k: "✅" if v else "❌" for k, v in perms.items()})
+        fila.update({k: "Sí" if v else "No" for k, v in perms.items()})
         filas.append(fila)
     st.dataframe(pd.DataFrame(filas), use_container_width=True, hide_index=True)
 
     st.divider()
-    st.subheader("➕ Crear Usuario")
+    st.subheader("Crear Usuario")
     with st.form("nuevo_usuario"):
         c1, c2 = st.columns(2)
         uname = c1.text_input("Usuario")
@@ -36,7 +36,7 @@ def render():
         email = c2.text_input("Email")
         rol = c1.selectbox("Rol", ["Administrador", "Agronomo", "Productor", "Tecnico"])
         pwd = c2.text_input("Contraseña temporal", type="password")
-        enviar = st.form_submit_button("➕ Crear Usuario", use_container_width=True)
+        enviar = st.form_submit_button("Crear Usuario", use_container_width=True)
         if enviar:
             if not all([uname, nombre, apell, email, pwd]):
                 st.error("Completa todos los campos.")
@@ -45,13 +45,13 @@ def render():
                 if ok:
                     db.log_bitacora(usuario["user_id"], "CREAR_USUARIO",
                                     f"Usuario '{uname}' creado con rol {rol}")
-                    st.success(f"✅ {msg}: **{uname}**")
+                    st.success(f"{msg}: {uname}")
                     st.rerun()
                 else:
                     st.error(msg)
 
     st.divider()
-    st.subheader("🛠️ Editar usuario existente")
+    st.subheader("Editar usuario existente")
     if df.empty:
         return
     uid = st.selectbox(
@@ -68,7 +68,7 @@ def render():
     nuevo_pwd = c2.text_input("Nueva contraseña (vacío = no cambiar)", type="password")
     activo = c3.checkbox("Activo", value=bool(row["activo"]))
 
-    if st.button("💾 Guardar cambios", use_container_width=True):
+    if st.button("Guardar cambios", use_container_width=True):
         if uid == usuario["user_id"] and not activo:
             st.error("No puedes desactivar tu propio usuario.")
         else:
