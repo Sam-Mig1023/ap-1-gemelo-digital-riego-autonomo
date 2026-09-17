@@ -55,26 +55,29 @@ services:
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # React Frontend
+  # Streamlit Frontend
   frontend:
     build:
-      context: ./
+      context: ./frontend_streamlit
       dockerfile: Dockerfile
-    container_name: vri_frontend
+    container_name: vri_streamlit
     environment:
-      VITE_API_URL: http://backend:8000
+      API_BASE_URL: http://backend:8000
+      API_TIMEOUT: "4"
+      JWT_SECRET: cambia_esta_clave_en_produccion
+      JWT_EXPIRY_HOURS: "8"
     ports:
-      - "3000:3000"
+      - "8501:8501"
     depends_on:
       - backend
     volumes:
-      - ./src:/app/src
-      - ./public:/app/public
-    command: npm run dev
+      - streamlit_data:/app/data
+    restart: unless-stopped
 
 volumes:
   postgres_data:
   redis_data:
+  streamlit_data:
 
 networks:
   default:
