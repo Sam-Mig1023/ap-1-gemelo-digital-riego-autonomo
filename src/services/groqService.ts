@@ -11,6 +11,10 @@ export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
+  sources?: Array<{
+    content: string;
+    metadata: Record<string, any>;
+  }>;
 }
 
 const GROQ_API_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';

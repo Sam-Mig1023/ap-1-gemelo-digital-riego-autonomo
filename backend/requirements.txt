@@ -2,5 +2,12 @@ fastapi==0.115.0
 uvicorn[standard]==0.30.0
 python-dotenv==1.0.1
 pydantic==2.8.2
-pydantic-settings==2.3.0
+pydantic-settings>=2.4.0
 typing-extensions==4.12.2
+
+# LangChain & RAG (Phase 1) - Updated versions
+langchain==0.3.17
+langchain-groq==0.3.8
+langchain-community==0.3.16
+faiss-cpu==1.9.0.post1
+sentence-transformers==3.3.1

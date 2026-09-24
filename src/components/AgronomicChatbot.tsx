@@ -43,6 +43,7 @@ import {
   buildAgronomicSystemPrompt,
   queryGroqChat
 } from '../services/groqService';
+import { apiClient } from '../services/apiClient';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface AgronomicChatbotProps {
@@ -263,6 +264,32 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
     }, 1200);
   };
 
+  // Try RAG backend first, fallback to direct Groq
+  const queryWithRAG = async (query: string): Promise<{answer: string, sources?: any[]}> => {
+    try {
+      const response = await apiClient.chat(query, language);
+      
+      if (response.data) {
+        return {
+          answer: response.data.answer,
+          sources: response.data.sources
+        };
+      }
+    } catch (error) {
+      console.warn('RAG backend unavailable, falling back to direct Groq', error);
+    }
+    
+    // Fallback to direct Groq call (already implemented)
+    const systemPrompt = buildAgronomicSystemPrompt(field, zones, decisions, sensors, radarCells);
+    const groqMessages = [...messages, {role: 'user', content: query}].map(m => ({
+      role: m.role,
+      content: m.content
+    }));
+    
+    const answer = await queryGroqChat(groqMessages, systemPrompt, apiKey, selectedModel);
+    return { answer, sources: undefined };
+  };
+
   // Send Message
   const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || inputMessage).trim();
@@ -296,27 +323,22 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
     }
 
     try {
-      const systemPrompt = buildAgronomicSystemPrompt(field, zones, decisions, sensors, radarCells);
-      const groqMessages = newHistory.map(m => ({
-        role: m.role,
-        content: m.content
-      }));
-
-      const botReplyText = await queryGroqChat(groqMessages, systemPrompt, apiKey, selectedModel);
+      const { answer, sources } = await queryWithRAG(query);
 
       const botMsgId = `bot-${Date.now()}`;
       const botMsg: ChatMessage = {
         id: botMsgId,
         role: 'assistant',
-        content: botReplyText,
-        timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
+        content: answer,
+        timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }),
+        sources: sources
       };
 
       setMessages(prev => [...prev, botMsg]);
 
       // If autoSpeak is enabled, read response out loud
       if (autoSpeak) {
-        speakMessage(botMsgId, botReplyText);
+        speakMessage(botMsgId, answer);
       }
     } catch (err: any) {
       console.error(err);
@@ -641,6 +663,28 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
                             </div>
                           ) : (
                             <div className="whitespace-pre-wrap">{msg.content}</div>
+                          )}
+
+                          {/* Sources display for RAG responses */}
+                          {isBot && msg.sources && msg.sources.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-slate-300 dark:border-slate-700">
+                              <div className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 mb-2 flex items-center gap-1">
+                                <Layers className="w-3 h-3" />
+                                📚 {language === 'es' ? 'Fuentes consultadas:' : 'Sources:'}
+                              </div>
+                              <div className="space-y-1.5">
+                                {msg.sources.map((src, idx) => (
+                                  <div key={idx} className="text-[10px] text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 p-2 rounded border border-slate-200 dark:border-slate-700/50">
+                                    <div className="font-medium text-emerald-600 dark:text-emerald-400 mb-0.5">
+                                      • {src.metadata.source || 'Knowledge Base'}
+                                    </div>
+                                    <div className="text-slate-500 dark:text-slate-500 italic">
+                                      {src.content.substring(0, 100)}...
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           )}
                         </div>
 

@@ -190,6 +190,15 @@ class APIClient {
   async exportWhatIfScenario(scenarioData: any) {
     return this.request('/api/v1/reports/what-if-export', 'POST', scenarioData);
   }
+
+  // Chat & RAG Endpoints
+  async chat(question: string, language: string = 'es') {
+    return this.request('/api/v1/chat', 'POST', { question, language });
+  }
+
+  async getChatHealth() {
+    return this.request('/api/v1/chat/health', 'GET');
+  }
 }
 
 // Export singleton instance
