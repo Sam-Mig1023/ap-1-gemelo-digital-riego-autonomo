@@ -8,31 +8,34 @@ Este módulo lanza una aplicación Streamlit (puerto 8501 por defecto) que actú
 """
 
 import streamlit as st
-import httpx
+import requests
+import os
 
 # ------------------------------------------------------------
 # Configuración de la API FastAPI
 # ------------------------------------------------------------
-API_HOST = st.secrets.get("API_HOST", "127.0.0.1")
-API_PORT = st.secrets.get("API_PORT", "8000")
+API_HOST = os.getenv("API_HOST", "127.0.0.1")
+API_PORT = os.getenv("API_PORT", "8000")
 BASE_URL = f"http://{API_HOST}:{API_PORT}/api/v1"
 TIMEOUT = 10.0
 
 def call_api(method: str, path: str, json: dict | None = None):
-    """Realiza una petición HTTP a la API FastAPI.
-    Devuelve el JSON de la respuesta o un diccionario con la clave ``error``.
+    """
+    Realiza una petición HTTP a la API FastAPI.
+    Devuelve el JSON de la respuesta o un dict con la clave ``error``.
     """
     url = f"{BASE_URL}/{path}".rstrip('/')
     try:
-        with httpx.Client(timeout=TIMEOUT) as client:
-            if method.upper() == "GET":
-                resp = client.get(url)
-            elif method.upper() == "POST":
-                resp = client.post(url, json=json)
-            else:
-                raise ValueError(f"Método HTTP no soportado: {method}")
+        if method.upper() == "GET":
+            resp = requests.get(url, timeout=TIMEOUT)
+        elif method.upper() == "POST":
+            resp = requests.post(url, json=json, timeout=TIMEOUT)
+        else:
+            raise ValueError(f"Método HTTP no soportado: {method}")
         resp.raise_for_status()
         return resp.json()
+    except Exception as exc:
+        return {"error": str(exc)}
     except Exception as exc:
         return {"error": str(exc)}
 
