@@ -1,0 +1,8 @@
+# Ignorar todo en esta carpeta
+*
+
+# Excepto este archivo .gitignore
+!.gitignore
+
+# Excepto el archivo README.md con las instrucciones de descarga
+!README.md
