@@ -66,7 +66,7 @@ export const en = {
       rlEngineDesc: 'PPO decisions and approvals',
       telemetry: '3. Telemetry & TimescaleDB',
       telemetryDesc: 'Real-time sensor charts',
-      whatIf: '4. What-If Simulator',
+      whatIf: '4. Digital Twin Simulator',
       whatIfDesc: 'Irrigation scenarios and forecast',
       reports: '5. PDF / Word / Excel Reports',
       reportsDesc: 'Report generation and scheduling',
@@ -228,7 +228,7 @@ export const en = {
     },
   },
   whatIf: {
-    title: 'Digital Twin "What-If" Simulator (Physical Simulation Environment)',
+    title: 'Digital Twin Simulator (Physical Simulation Environment)',
     subtitle: 'Evaluate hypothetical irrigation and weather scenarios without altering the real field system',
     targetZone: 'Target Zone:',
     sliders: {
@@ -351,34 +351,104 @@ export const en = {
     title: 'System Architecture & Production Code Repository',
     subtitle: 'Stack: Python 3.11, FastAPI (async), PostgreSQL 15 + PostGIS + TimescaleDB, Gymnasium RL, Celery, Docker Compose',
     tabs: {
-      pipeline: '1. Pipeline & Flow',
-      code: '2. Backend Source Code',
+      architecture: '1. Pipeline & Flow',
+      codebase: '2. Backend Source Code',
       er: '3. ER Schema & PostGIS',
       api: '4. API Specification',
     },
     architecture: {
-      title: 'End-to-End Architecture: Data Flow & Closed Loop',
+      pipelineTitle: 'End-to-End Architecture: Data Flow & Closed Loop',
       feedbackLoop: 'Feedback Loop: 45-60 min',
       stages: {
-        ingestion: {
+        '0': {
           title: 'Multi-Sensor Ingestion',
-          desc: '• FDR/TDR probes (10, 30, 60cm)\n• Canopy IRT thermography\n• Radar grids (dBZ)\n• Weather station',
+          bullets: {
+            '0': '• FDR/TDR probes (10, 30, 60cm)',
+            '1': '• Canopy IRT thermography',
+            '2': '• Radar grids (dBZ)',
+            '3': '• Weather station',
+          },
           storage: 'TimescaleDB (Hypertable)',
         },
-        fusion: {
+        '1': {
           title: 'Tensor Fusion & XAI',
-          desc: '• Isolation Forest filter\n• CWSI & VPD computation\n• Phenological normalization\n• Tensor [Zones, 12 Feats.]',
+          bullets: {
+            '0': '• Isolation Forest filter',
+            '1': '• CWSI & VPD computation',
+            '2': '• Phenological normalization',
+            '3': '• Tensor [Zones, 12 Feats.]',
+          },
           storage: 'NumPy / SciPy Pipeline',
         },
-        rl: {
+        '2': {
           title: 'PPO / SAC Agent Core',
-          desc: '• Continuous policy inference\n• Multi-objective reward\n• SHAP explainability\n• Safe Mode safeguards',
+          bullets: {
+            '0': '• Continuous policy inference',
+            '1': '• Multi-objective reward',
+            '2': '• SHAP explainability',
+            '3': '• Safe Mode safeguards',
+          },
           storage: 'Stable-Baselines3 / Ray',
         },
+        '3': {
+          title: 'VRI Execution & Actuators',
+          bullets: {
+            '0': '• Prescription by pivot sector',
+            '1': '• VRI valve coordination',
+            '2': '• Time-based pump control',
+            '3': '• Rural LoRaWAN Offline queue',
+          },
+          storage: 'MQTT Broker + Redis Queue',
+        },
+        '4': {
+          title: 'Feedback & Calibration',
+          bullets: {
+            '0': '• Post-irrigation measurement 45-60 min',
+            '1': '• Residual error Δθ calculation',
+            '2': '• Soil Ksat parameter update',
+            '3': '• Reward to RL experience buffer',
+          },
+          storage: 'Experience Replay Buffer',
+        },
+      },
+      assumptionsTitle: 'Assumptions & Base Physical Models',
+      assumptions: {
+        '0': '<strong>Green-Ampt</strong> infiltration model for water balance per horizon.',
+        '1': '<strong>FAO-56 Dual</strong> crop evapotranspiration (Kc + Kcb per phenological stage).',
+        '2': 'Water stress via <strong>CWSI</strong> (Crop Water Stress Index) with IRT thermography.',
+        '3': '<strong>Isolation Forest</strong> anomaly detector trained on historical TDR sensor data.',
       },
     },
-    copyCode: 'Copy Code',
-    copied: 'Copied',
+    codebase: {
+      browserTitle: 'Repository Explorer',
+      filesSuffix: 'files',
+      categories: {
+        all: 'All',
+        backend: 'Backend',
+        database: 'Database',
+        mlrl: 'ML / RL',
+        infra: 'Infrastructure',
+        tests: 'Tests',
+      },
+      copy: 'Copy Code',
+      copied: 'Copied',
+    },
+    er: {
+      title: 'Entity-Relationship Schema (PostGIS + TimescaleDB)',
+    },
+    api: {
+      title: 'Endpoint Specification (FastAPI /openapi.json)',
+      endpoints: {
+        '0': 'Authentication and JWT issuance with RBAC roles',
+        '1': 'List management zones with PostGIS polygon and hydraulic parameters',
+        '2': 'Raw sensor telemetry ingestion with schema validation',
+        '3': 'Run PPO inference and get prescribed VRI rates per zone',
+        '4': 'Dispatch irrigation decision to pivot and log to SHA-256 audit',
+        '5': 'Run What-If scenario on the Digital Twin',
+        '6': 'Export executive report in PDF / DOCX / XLSX / CSV',
+        '7': 'WebSocket for real-time telemetry streaming',
+      },
+    },
   },
   chatbot: {
     welcome: 'Hello! I am your **Agronomic AI Assistant** connected to the VRI Digital Twin. I can answer your questions about water balance, PPO recommendations from the RL agent, CWSI stress indices or real-time radar readings. You can type or press the **microphone** to dictate by voice.',

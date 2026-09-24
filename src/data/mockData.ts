@@ -437,6 +437,33 @@ export const INITIAL_RL_DECISIONS: RLDecision[] = [
       safeModeTriggered: false
     },
     overriddenManually: false
+  },
+  {
+    id: 'dec-20260831-04',
+    fieldId: 'field-ica-01',
+    zoneId: 'zone-3-sw',
+    zoneName: 'Zona 3 (Suroeste - Franco Arcillosa)',
+    timestamp: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
+    policyId: 'PPO-VRI-DualReward-v4.2',
+    recommendedVolumeM3: 0,
+    recommendedDepthMm: 0.0,
+    executionWindowHours: { start: '—', end: 'No Aplica' },
+    confidenceScore: 0.97,
+    status: 'pending',
+    rewardExpected: 6.2,
+    explanation: {
+      zoneId: 'zone-3-sw',
+      dominantFeature: 'Estado Hídrico Óptimo - Omisión de Riego (Ahorro)',
+      shapValues: [
+        { feature: 'Humedad Óptima 10-60cm (31-34%)', impact: -0.52, description: 'Dentro del 85-95% de Capacidad de Campo (36%)' },
+        { feature: 'Textura Franco-Arcillosa (Retentiva)', impact: -0.28, description: 'Ksat 6.8 mm/hr: retención hídrica elevada, baja percolación' },
+        { feature: 'CWSI Muy Bajo (0.12)', impact: -0.22, description: 'Sin señal de estrés hídrico en termografía de dosel' },
+        { feature: 'Radar 24h (4.1mm) + Humedad Relativa Alta', impact: -0.16, description: 'Aporte atmosférico cubre ETc de 4.8 mm/día' }
+      ],
+      reasoningText: 'El agente PPO recomienda OMITIR el riego en la Zona 3. Dosis = 0.0 mm maximiza la recompensa de ahorro hídrico (-w2·Volumen) sin penalización de estrés. El perfil arcilloso retendrá humedad por al menos 48-72 hr adicionales sin comprometer rendimiento.',
+      safeModeTriggered: false
+    },
+    overriddenManually: false
   }
 ];
 

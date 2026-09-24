@@ -66,7 +66,7 @@ export const es = {
       rlEngineDesc: 'Decisiones PPO y aprobaciones',
       telemetry: '3. Telemetría & TimescaleDB',
       telemetryDesc: 'Gráficos de sensores en tiempo real',
-      whatIf: '4. Simulador Qué Pasaría Si',
+      whatIf: '4. Simulador del Gemelo Digital',
       whatIfDesc: 'Escenarios de riego y pronóstico',
       reports: '5. Reportes PDF / Word / Excel',
       reportsDesc: 'Generación y programación de informes',
@@ -228,7 +228,7 @@ export const es = {
     },
   },
   whatIf: {
-    title: 'Simulador "Qué Pasaría Si" del Gemelo Digital (Entorno de Simulación Física)',
+    title: 'Simulador del Gemelo Digital (Entorno de Simulación Física)',
     subtitle: 'Evalúa escenarios hipotéticos de riego y clima sin alterar el sistema físico real en campo',
     targetZone: 'Zona Objetivo:',
     sliders: {
@@ -351,34 +351,104 @@ export const es = {
     title: 'Arquitectura del Sistema & Repositorio de Código Productivo',
     subtitle: 'Stack: Python 3.11, FastAPI (async), PostgreSQL 15 + PostGIS + TimescaleDB, Gymnasium RL, Celery, Docker Compose',
     tabs: {
-      pipeline: '1. Pipeline & Flujo',
-      code: '2. Código Fuente Backend',
+      architecture: '1. Pipeline & Flujo',
+      codebase: '2. Código Fuente Backend',
       er: '3. Esquema ER & PostGIS',
       api: '4. Especificación de API',
     },
     architecture: {
-      title: 'Arquitectura de Extremo a Extremo: Flujo de Datos & Ciclo Cerrado',
+      pipelineTitle: 'Arquitectura de Extremo a Extremo: Flujo de Datos & Ciclo Cerrado',
       feedbackLoop: 'Feedback Loop: 45-60 min',
       stages: {
-        ingestion: {
+        '0': {
           title: 'Ingestión Multi-Sensor',
-          desc: '• Sondas FDR/TDR (10, 30, 60cm)\n• Termografía IRT de dosel\n• Grillas de Radar (dBZ)\n• Estación meteorológica',
+          bullets: {
+            '0': '• Sondas FDR/TDR (10, 30, 60cm)',
+            '1': '• Termografía IRT de dosel',
+            '2': '• Grillas de Radar (dBZ)',
+            '3': '• Estación meteorológica',
+          },
           storage: 'TimescaleDB (Hypertable)',
         },
-        fusion: {
+        '1': {
           title: 'Fusión Tensor & XAI',
-          desc: '• Filtro Isolation Forest\n• Cálculo CWSI & VPD\n• Normalización fenológica\n• Tensor [Zonas, 12 Caracts.]',
+          bullets: {
+            '0': '• Filtro Isolation Forest',
+            '1': '• Cálculo CWSI & VPD',
+            '2': '• Normalización fenológica',
+            '3': '• Tensor [Zonas, 12 Caracts.]',
+          },
           storage: 'Pipeline NumPy / SciPy',
         },
-        rl: {
+        '2': {
           title: 'Núcleo Agente PPO / SAC',
-          desc: '• Inferencia de política continua\n• Recompensa multi-objetivo\n• Explicabilidad SHAP\n• Salvaguarda Modo Seguro',
+          bullets: {
+            '0': '• Inferencia de política continua',
+            '1': '• Recompensa multi-objetivo',
+            '2': '• Explicabilidad SHAP',
+            '3': '• Salvaguarda Modo Seguro',
+          },
           storage: 'Stable-Baselines3 / Ray',
         },
+        '3': {
+          title: 'Ejecución VRI & Actuadores',
+          bullets: {
+            '0': '• Prescripción por sector del pivot',
+            '1': '• Coordinación de válvulas VRI',
+            '2': '• Control de bombeo horario',
+            '3': '• Cola Offline rural LoRaWAN',
+          },
+          storage: 'MQTT Broker + Cola Redis',
+        },
+        '4': {
+          title: 'Retroalimentación & Calibración',
+          bullets: {
+            '0': '• Medición post-riego 45-60 min',
+            '1': '• Cálculo de error residual Δθ',
+            '2': '• Actualización de Ksat del suelo',
+            '3': '• Reward para buffer de experiencia RL',
+          },
+          storage: 'Experience Replay Buffer',
+        },
+      },
+      assumptionsTitle: 'Supuestos & Modelos Físicos Base',
+      assumptions: {
+        '0': 'Modelo de infiltración <strong>Green-Ampt</strong> para balance hídrico por horizonte.',
+        '1': 'Evapotranspiración de cultivo <strong>FAO-56 Dual</strong> (Kc + Kcb por etapa fenológica).',
+        '2': 'Estrés hídrico vía <strong>CWSI</strong> (Crop Water Stress Index) con termografía IRT.',
+        '3': 'Detector de anomalías <strong>Isolation Forest</strong> entrenado sobre histórico de sensores TDR.',
       },
     },
-    copyCode: 'Copiar Código',
-    copied: 'Copiado',
+    codebase: {
+      browserTitle: 'Explorador de Repositorio',
+      filesSuffix: 'archivos',
+      categories: {
+        all: 'Todos',
+        backend: 'Backend',
+        database: 'Base de Datos',
+        mlrl: 'ML / RL',
+        infra: 'Infraestructura',
+        tests: 'Tests',
+      },
+      copy: 'Copiar Código',
+      copied: 'Copiado',
+    },
+    er: {
+      title: 'Esquema Entidad-Relación (PostGIS + TimescaleDB)',
+    },
+    api: {
+      title: 'Especificación de Endpoints (FastAPI /openapi.json)',
+      endpoints: {
+        '0': 'Autenticación y emisión de JWT con roles RBAC',
+        '1': 'Listar zonas de manejo con polígono PostGIS y parámetros hidráulicos',
+        '2': 'Ingesta de telemetría cruda de sensores con validación de esquema',
+        '3': 'Ejecutar inferencia PPO y obtener dosis VRI prescritas por zona',
+        '4': 'Despachar decisión de riego al pivot y registrar en auditoría SHA-256',
+        '5': 'Simular escenario ¿Qué pasaría si? sobre el Gemelo Digital',
+        '6': 'Exportar reporte ejecutivo en PDF / DOCX / XLSX / CSV',
+        '7': 'WebSocket para streaming de telemetría en tiempo real',
+      },
+    },
   },
   chatbot: {
     welcome: '¡Hola! Soy tu **Asistente Agronómico de IA** conectado al Gemelo Digital VRI. Puedo responder tus dudas sobre el balance hídrico, recomendaciones PPO del agente RL, índices de estrés CWSI o lecturas del radar en tiempo real. Puedes escribirme o pulsar el **micrófono** para dictarme por voz.',

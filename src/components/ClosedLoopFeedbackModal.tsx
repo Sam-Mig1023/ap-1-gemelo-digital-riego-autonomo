@@ -58,13 +58,13 @@ export const ClosedLoopFeedbackModal: React.FC<ClosedLoopFeedbackModalProps> = (
         <div className="grid grid-cols-2 gap-3 text-xs">
           
           <div className="bg-slate-50 dark:bg-slate-950/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
-            <span className="text-slate-600 dark:text-slate-400 block text-[11px]">{t('feedbackModal.metrics.simulated.label')}</span>
+            <span className="text-slate-600 dark:text-slate-400 block text-[11px]">{t('feedbackModal.metrics.simulated')}</span>
             <span className="text-xl font-bold font-mono text-blue-400">{feedback.expectedMoisturePost}%</span>
-            <p className="text-[10px] text-slate-600 dark:text-slate-500">{t('feedbackModal.metrics.simulated.hint')}</p>
+            <p className="text-[10px] text-slate-600 dark:text-slate-500">{t('feedbackModal.metrics.simulatedHint')}</p>
           </div>
 
           <div className="bg-slate-50 dark:bg-slate-950/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
-            <span className="text-slate-600 dark:text-slate-400 block text-[11px]">{t('feedbackModal.metrics.measured.label')}</span>
+            <span className="text-slate-600 dark:text-slate-400 block text-[11px]">{t('feedbackModal.metrics.measured')}</span>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -75,7 +75,7 @@ export const ClosedLoopFeedbackModal: React.FC<ClosedLoopFeedbackModalProps> = (
               />
               <span className="text-emerald-400 font-bold text-sm">%</span>
             </div>
-            <p className="text-[10px] text-slate-600 dark:text-slate-500">{t('feedbackModal.metrics.measured.hint')}</p>
+            <p className="text-[10px] text-slate-600 dark:text-slate-500">{t('feedbackModal.metrics.measuredHint')}</p>
           </div>
 
         </div>
@@ -84,21 +84,21 @@ export const ClosedLoopFeedbackModal: React.FC<ClosedLoopFeedbackModalProps> = (
         <div className="bg-slate-50 dark:bg-slate-950/90 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5 text-xs">
           
           <div className="flex justify-between items-center">
-            <span className="text-slate-700 dark:text-slate-300 font-semibold">{t('feedbackModal.calibration.residual')}</span>
+            <span className="text-slate-700 dark:text-slate-300 font-semibold">{t('feedbackModal.calib.residual')}</span>
             <span className={`font-mono font-bold ${Math.abs(feedback.residualError) > 1.5 ? 'text-amber-400' : 'text-emerald-400'}`}>
               {feedback.residualError > 0 ? `+${feedback.residualError}` : feedback.residualError}% m³/m³
             </span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-slate-700 dark:text-slate-300 font-semibold">{t('feedbackModal.calibration.efficiency')}</span>
+            <span className="text-slate-700 dark:text-slate-300 font-semibold">{t('feedbackModal.calib.efficiency')}</span>
             <span className="font-mono font-bold text-teal-300">
               {Math.round(feedback.infiltrationEfficiency * 100)}%
             </span>
           </div>
 
           <div className="flex justify-between items-center border-t border-slate-200/80 dark:border-slate-800/80 pt-2">
-            <span className="text-slate-700 dark:text-slate-300 font-semibold">{t('feedbackModal.calibration.ksat')}</span>
+            <span className="text-slate-700 dark:text-slate-300 font-semibold">{t('feedbackModal.calib.ksat')}</span>
             <span className="font-mono font-bold text-purple-300">
               {zone.saturatedK} → {updatedZone.saturatedK} mm/h ({feedback.ksatAdjustmentPct > 0 ? `+${feedback.ksatAdjustmentPct}` : feedback.ksatAdjustmentPct}%)
             </span>
@@ -112,7 +112,7 @@ export const ClosedLoopFeedbackModal: React.FC<ClosedLoopFeedbackModalProps> = (
           <div>
             <strong className="block text-blue-200 font-semibold">{t('feedbackModal.summary.title')}</strong>
             <span>
-              {t('feedbackModal.summary.body')}
+              {t('feedbackModal.summary.desc')}
             </span>
           </div>
         </div>
@@ -134,7 +134,7 @@ export const ClosedLoopFeedbackModal: React.FC<ClosedLoopFeedbackModalProps> = (
             className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-emerald-950/40"
           >
             <CheckCircle className="w-3.5 h-3.5" />
-            <span>{t('feedbackModal.actions.commit')}</span>
+            <span>{t('feedbackModal.actions.apply')}</span>
           </button>
         </div>
 
