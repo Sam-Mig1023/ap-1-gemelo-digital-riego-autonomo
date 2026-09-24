@@ -59,6 +59,23 @@ section[data-testid="stSidebar"] {
 section[data-testid="stSidebar"] * { color: #dceeff !important; }
 section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.15); }
 
+/* Inputs dentro del sidebar: fondo oscuro, texto visible */
+section[data-testid="stSidebar"] input[type="text"],
+section[data-testid="stSidebar"] input {
+    background-color: rgba(255,255,255,0.08) !important;
+    color: #e8f4ff !important;
+    border: 1px solid rgba(100,160,255,0.35) !important;
+    border-radius: 6px !important;
+}
+section[data-testid="stSidebar"] input::placeholder {
+    color: rgba(180,210,255,0.5) !important;
+}
+section[data-testid="stSidebar"] label {
+    color: #90caf9 !important;
+    font-size: 0.82rem !important;
+    font-weight: 600;
+}
+
 /* Area principal blanca */
 .main { background-color: #f5f7fa; }
 .main .block-container {

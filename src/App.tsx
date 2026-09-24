@@ -24,6 +24,7 @@ import {
   ClosedLoopFeedback
 } from './types';
 import { runRLPolicyInference } from './services/rlAgentEngine';
+import { apiClient } from './services/apiClient';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { FieldGISMap } from './components/FieldGISMap';
@@ -46,6 +47,30 @@ export default function App() {
   const [decisions, setDecisions] = useState<RLDecision[]>(INITIAL_RL_DECISIONS);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
   const [scheduledReports, setScheduledReports] = useState(INITIAL_SCHEDULED_REPORTS);
+
+  // Intentar cargar datos reales desde la API FastAPI
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fieldsRes = await apiClient.getFields();
+        if (fieldsRes.data && fieldsRes.data.length > 0) {
+          // Asumiendo que la API devuelve un arreglo de campos
+          // setField(fieldsRes.data[0]);
+        }
+        
+        const sensorsRes = await apiClient.getSensors();
+        if (sensorsRes.data && sensorsRes.data.length > 0) {
+          // setSensors(sensorsRes.data);
+        }
+        
+        // Si no hay datos reales todavia, mantenemos los MOCKS
+      } catch (error) {
+        console.error("Error al conectar con la API:", error);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   // UI & Global Session States
   const [activeTab, setActiveTab] = useState<string>('gis-map');
