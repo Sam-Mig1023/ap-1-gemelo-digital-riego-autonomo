@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 from typing import List
 from datetime import datetime
 from uuid import uuid4
+from app.services.dataset_service import get_dataset_service
 
 router = APIRouter()
 
@@ -11,9 +12,9 @@ MOCK_FIELDS = {
     "field-001": {
         "id": "field-001",
         "name": "Campo San Pablo Sector A",
-        "cropName": "Maíz Amarillo Duro",
-        "cropVariety": "Dekalb DK7088",
-        "cropStage": "VT (Flowering)",
+        "cropName": "Tomate / Calabacín / Arándano",
+        "cropVariety": "Multi-Crop",
+        "cropStage": "Flowering",
         "areaHectares": 150.5,
         "soilType": "Franco Limosa",
         "location": {"latitude": -9.1795, "longitude": -75.2268},
@@ -22,35 +23,92 @@ MOCK_FIELDS = {
     }
 }
 
-MOCK_ZONES = {
-    "zone-1-nw": {
-        "id": "zone-1-nw",
-        "fieldId": "field-001",
-        "name": "Zona 1 (Noroeste)",
-        "sector": "NW",
-        "areaHectares": 37.6,
-        "soilType": "Franco Limosa",
-        "currentMoisture10cm": 28.5,
-        "currentMoisture30cm": 32.1,
-        "currentMoisture60cm": 35.8,
-        "canopyTemperature": 24.3,
-        "recommendedRateMm": 3.5
-    },
-    "zone-2-ne": {
-        "id": "zone-2-ne",
-        "fieldId": "field-001",
-        "name": "Zona 2 (Noreste)",
-        "sector": "NE",
-        "areaHectares": 37.6,
-        "soilType": "Franco Limosa",
-        "currentMoisture10cm": 26.9,
-        "currentMoisture30cm": 29.5,
-        "currentMoisture60cm": 33.2,
-        "canopyTemperature": 23.1,
-        "recommendedRateMm": 5.2
-    }
-}
+import os
+import csv
+from datetime import datetime
 
+def get_dynamic_zones():
+    dataset_service = get_dataset_service()
+    zones = {}
+    
+    zone_info = {
+        "zone-1-nw": {"name": "Zona 1 (Tomate)", "sector": "NW", "area": 37.6},
+        "zone-2-ne": {"name": "Zona 2 (Tomate)", "sector": "NE", "area": 37.6},
+        "zone-4": {"name": "Zona 4 (Calabacín)", "sector": "SW", "area": 37.6},
+        "zone-5": {"name": "Zona 5 (Arándano)", "sector": "SE", "area": 37.6},
+    }
+    
+    # Read crop calendar
+    calendar_path = os.path.join(dataset_service.data_dir.parent, "crop_calendar.csv")
+    crop_data = {}
+    if os.path.exists(calendar_path):
+        with open(calendar_path, mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                crop_data[row["zona"]] = row
+                
+    today = datetime.utcnow().date()
+    
+    for zone_id, info in zone_info.items():
+        reading = dataset_service.get_latest_reading(zone_id)
+        if not reading:
+            continue
+            
+        # Calculate dynamic phenological stage and Kc
+        crop_stage = "Desconocida"
+        kc = 0.8
+        crop_name = "Desconocido"
+        
+        if zone_id in crop_data:
+            cdata = crop_data[zone_id]
+            crop_name = cdata["cultivo"]
+            try:
+                planting_date_str = cdata["fecha_siembra"]
+                flowering_date_str = cdata["fecha_floracion_esperada"]
+                harvest_date_str = cdata["fecha_cosecha"]
+                
+                f_siembra = datetime.strptime(planting_date_str, "%Y-%m-%d").date()
+                f_floracion = datetime.strptime(flowering_date_str, "%Y-%m-%d").date()
+                f_cosecha = datetime.strptime(harvest_date_str, "%Y-%m-%d").date()
+                
+                if today < f_siembra:
+                    crop_stage = "Pre-siembra"
+                    kc = 0.3
+                elif today < f_floracion:
+                    crop_stage = "Desarrollo Vegetativo"
+                    days_total = (f_floracion - f_siembra).days
+                    days_passed = (today - f_siembra).days
+                    kc = 0.4 + (0.75 * (days_passed / max(1, days_total)))
+                elif today <= f_cosecha:
+                    crop_stage = "Floracion / Fructificacion"
+                    kc = 1.15
+                else:
+                    crop_stage = "Cosecha / Post-cosecha"
+                    kc = 0.6
+            except ValueError:
+                pass
+            
+        zones[zone_id] = {
+            "id": zone_id,
+            "fieldId": "field-001",
+            "name": info["name"],
+            "sector": info["sector"],
+            "areaHectares": info["area"],
+            "soilType": "Franco Limosa",
+            "cropName": crop_name,
+            "cropStage": crop_stage,
+            "kc": round(kc, 2),
+            "plantingDate": planting_date_str if 'planting_date_str' in locals() else None,
+            "floweringDate": flowering_date_str if 'flowering_date_str' in locals() else None,
+            "harvestDate": harvest_date_str if 'harvest_date_str' in locals() else None,
+            "currentMoisture10cm": round(reading.get('soil_moisture', 0.0), 2),
+            "currentMoisture30cm": round(reading.get('soil_moisture', 0.0) + 2.1, 2),
+            "currentMoisture60cm": round(reading.get('soil_moisture', 0.0) + 3.5, 2),
+            "canopyTemperature": round(reading.get('weather_temp', 0.0), 2),
+            "recommendedRateMm": round(reading.get('water_vol_to_24h', 0.0) / 1000, 2) if 'water_vol_to_24h' in reading else 0.0
+        }
+        
+    return zones
 
 @router.get("/")
 async def list_fields():
@@ -59,7 +117,6 @@ async def list_fields():
         "fields": list(MOCK_FIELDS.values()),
         "total": len(MOCK_FIELDS)
     }
-
 
 @router.get("/{field_id}")
 async def get_field(field_id: str):
@@ -71,7 +128,6 @@ async def get_field(field_id: str):
         )
     return MOCK_FIELDS[field_id]
 
-
 @router.get("/{field_id}/zones")
 async def get_field_zones(field_id: str):
     """Get zones for a specific field"""
@@ -81,13 +137,13 @@ async def get_field_zones(field_id: str):
             detail=f"Field {field_id} not found"
         )
     
-    field_zones = [z for z in MOCK_ZONES.values() if z["fieldId"] == field_id]
+    zones = get_dynamic_zones()
+    field_zones = [z for z in zones.values() if z["fieldId"] == field_id]
     return {
         "fieldId": field_id,
         "zones": field_zones,
         "total": len(field_zones)
     }
-
 
 @router.get("/{field_id}/zones/{zone_id}")
 async def get_zone(field_id: str, zone_id: str):
@@ -98,13 +154,14 @@ async def get_zone(field_id: str, zone_id: str):
             detail=f"Field {field_id} not found"
         )
     
-    if zone_id not in MOCK_ZONES:
+    zones = get_dynamic_zones()
+    if zone_id not in zones:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Zone {zone_id} not found"
         )
     
-    zone = MOCK_ZONES[zone_id]
+    zone = zones[zone_id]
     if zone["fieldId"] != field_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

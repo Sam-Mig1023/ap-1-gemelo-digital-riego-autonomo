@@ -141,6 +141,7 @@ with st.sidebar:
 
     modules = [
         "Dashboard",
+        "RAG Chat",
         "Gemelo Digital 3D",
         "Mantenimiento",
         "Analisis Predictivo",
@@ -149,6 +150,7 @@ with st.sidebar:
     ]
     module_icons = {
         "Dashboard": "📊",
+        "RAG Chat": "🤖",
         "Gemelo Digital 3D": "🛰️",
         "Mantenimiento": "🔧",
         "Analisis Predictivo": "📈",
@@ -207,17 +209,41 @@ if selected == "Dashboard":
         st.warning(f"Detalle: {health.get('error', 'Desconocido')}")
         st.info("Verifica que el servidor este corriendo: `uvicorn app.main:app --reload --port 8000`")
 
-    st.markdown("### Estadisticas del sistema")
-    stats = call_api("GET", "stats")
-    if "error" not in stats:
+    st.markdown("### Estadisticas del sistema (Datos Reales)")
+    
+    fields_data = call_api("GET", "fields/field-001/zones")
+    sensors_data = call_api("GET", "sensors")
+    
+    if "error" not in fields_data and "error" not in sensors_data:
+        zones = fields_data.get("zones", [])
+        sensors = sensors_data.get("sensors", [])
+        
+        num_zones = len(zones)
+        num_sensors = len(sensors)
+        avg_moisture = sum(z.get("currentMoisture10cm", 0) for z in zones) / num_zones if num_zones > 0 else 0
+        total_rate = sum(z.get("recommendedRateMm", 0) for z in zones)
+        
+        col_a, col_b, col_c, col_d = st.columns(4)
+        col_a.metric("Zonas de riego (Activas)", str(num_zones))
+        col_b.metric("Sensores activos", str(num_sensors))
+        col_c.metric("Humedad Promedio (%)", f"{avg_moisture:.1f}%")
+        col_d.metric("Tasa Rec. (mm)", f"{total_rate:.1f} mm")
+        
+        st.markdown("#### Detalle por Zona")
         try:
             import pandas as pd
-            df = pd.DataFrame.from_dict(stats, orient="index", columns=["Valor"])
-            st.dataframe(df)
+            df = pd.DataFrame([{
+                "Zona": z["name"], 
+                "Área (ha)": z["areaHectares"], 
+                "Humedad 10cm (%)": z["currentMoisture10cm"], 
+                "Temp. Canopia (°C)": z["canopyTemperature"],
+                "Riego Recomendado (mm)": z["recommendedRateMm"]
+            } for z in zones])
+            st.dataframe(df, use_container_width=True)
         except Exception:
-            st.json(stats)
+            st.json(zones)
     else:
-        st.info("El endpoint /stats aun no esta implementado en la API.")
+        st.info("No se pudo obtener datos de la API. Mostrando datos de ejemplo.")
         col_a, col_b, col_c, col_d = st.columns(4)
         col_a.metric("Zonas de riego", "5")
         col_b.metric("Sensores activos", "12")
@@ -225,6 +251,18 @@ if selected == "Dashboard":
         col_d.metric("Uptime API", "99.8%")
 
     st.markdown("</div>", unsafe_allow_html=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# RAG CHAT - ASISTENTE AGRONÓMICO
+# ═══════════════════════════════════════════════════════════════════════════════
+elif selected == "RAG Chat":
+    try:
+        from streamlit_modules.rag_chat import render_rag_chat
+        render_rag_chat(BASE_URL)
+    except ImportError as e:
+        st.error(f"Error al cargar módulo RAG Chat: {e}")
+        st.info("Asegúrate de que el archivo `streamlit_modules/rag_chat.py` existe.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -473,14 +511,20 @@ elif selected == "Gemelo Digital 3D":
     components.html(three_html, height=520, scrolling=False)
 
     st.markdown("---")
-    st.markdown("### Metricas en tiempo real")
-    twin = call_api("GET", "twin")
+    st.markdown("### Metricas en tiempo real (Datos Reales del Dataset)")
+    
+    fields_data = call_api("GET", "fields/field-001/zones")
+    
     col1, col2, col3, col4 = st.columns(4)
-    if "error" not in twin:
-        col1.metric("Aspersores activos", twin.get("active_sprinklers", "-"))
-        col2.metric("Humedad suelo (%)", twin.get("soil_humidity", "-"))
-        col3.metric("Bomba", twin.get("pump_status", "-"))
-        col4.metric("Flujo (L/h)", twin.get("flow_rate", "-"))
+    if "error" not in fields_data:
+        zones = fields_data.get("zones", [])
+        avg_moisture = sum(z.get("currentMoisture10cm", 0) for z in zones) / len(zones) if zones else 0
+        total_rate = sum(z.get("recommendedRateMm", 0) for z in zones)
+        
+        col1.metric("Aspersores activos", f"{len(zones)} / 5")
+        col2.metric("Humedad suelo (%)", f"{avg_moisture:.1f}")
+        col3.metric("Bomba", "ON" if total_rate > 0 else "OFF")
+        col4.metric("Flujo Rec. (mm)", f"{total_rate:.1f}")
     else:
         col1.metric("Aspersores activos", "3 / 5")
         col2.metric("Humedad suelo (%)", "68")
@@ -590,7 +634,7 @@ elif selected == "Analisis Predictivo":
 # ═══════════════════════════════════════════════════════════════════════════════
 elif selected == "Motor IA":
     st.markdown("<div class='module-card'>", unsafe_allow_html=True)
-    st.markdown("Envia un prompt al motor de IA del backend y obtiene una respuesta.")
+    st.markdown("Envia un prompt al motor de IA del backend (RAG + LangChain) y obtiene una respuesta.")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
@@ -600,25 +644,33 @@ elif selected == "Motor IA":
         role = "Usuario" if msg["role"] == "user" else "IA"
         icon = "👤" if msg["role"] == "user" else "🤖"
         st.markdown(f"**{icon} {role}:** {msg['content']}")
+        
+        # Mostrar fuentes si existen (RAG)
+        if msg.get("sources"):
+            with st.expander("Ver fuentes consultadas"):
+                for idx, src in enumerate(msg["sources"]):
+                    st.caption(f"**Fuente {idx+1}:** {src.get('metadata', {}).get('source', 'Desconocida')}")
+                    st.caption(src.get('content', ''))
 
     with st.form(key="ai_form", clear_on_submit=True):
         prompt = st.text_area(
             "Escribe tu pregunta:",
             height=110,
-            placeholder="Ejemplo: Cual es el estado actual del riego en la zona norte?"
+            placeholder="Ejemplo: Cual es la humedad optima para los tomates a campo abierto segun el dataset?"
         )
         submitted = st.form_submit_button("Enviar")
 
     if submitted and prompt.strip():
         st.session_state.chat_history.append({"role": "user", "content": prompt})
-        with st.spinner("Procesando..."):
-            response = call_api("POST", "ai", json={"prompt": prompt})
+        with st.spinner("Procesando consulta con LangChain RAG..."):
+            response = call_api("POST", "chat", json={"question": prompt, "language": "es"})
         if "error" not in response:
-            answer = response.get("response", str(response))
-            st.session_state.chat_history.append({"role": "ai", "content": answer})
+            answer = response.get("answer", str(response))
+            sources = response.get("sources", [])
+            st.session_state.chat_history.append({"role": "ai", "content": answer, "sources": sources})
         else:
             st.error(f"Error: {response.get('error')}")
-            st.info("Verifica que el endpoint /api/v1/ai exista en tu FastAPI.")
+            st.info("Verifica que LangChain y la llave de Groq esten configuradas.")
         st.rerun()
 
     if st.button("Limpiar historial"):

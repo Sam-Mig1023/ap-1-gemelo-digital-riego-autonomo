@@ -25,6 +25,7 @@ import {
 } from './types';
 import { runRLPolicyInference } from './services/rlAgentEngine';
 import { apiClient } from './services/apiClient';
+import { phenologyService } from './services/phenologyService';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { FieldGISMap } from './components/FieldGISMap';
@@ -33,6 +34,7 @@ import { TelemetryAnalytics } from './components/TelemetryAnalytics';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { ReportExportStudio } from './components/ReportExportStudio';
 import { RBACAuditConsole } from './components/RBACAuditConsole';
+import { CropCalendarView } from './components/CropCalendarView';
 import { ArchitectureAndCodeViewer } from './components/ArchitectureAndCodeViewer';
 import { ClosedLoopFeedbackModal } from './components/ClosedLoopFeedbackModal';
 import { AgronomicChatbot } from './components/AgronomicChatbot';
@@ -48,28 +50,74 @@ export default function App() {
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
   const [scheduledReports, setScheduledReports] = useState(INITIAL_SCHEDULED_REPORTS);
 
-  // Intentar cargar datos reales desde la API FastAPI
+  // Cargar datos reales desde la API FastAPI
   useEffect(() => {
     const fetchData = async () => {
       try {
         const fieldsRes = await apiClient.getFields();
-        if (fieldsRes.data && fieldsRes.data.length > 0) {
-          // Asumiendo que la API devuelve un arreglo de campos
-          // setField(fieldsRes.data[0]);
+        if (fieldsRes.data && (fieldsRes.data as any).fields && (fieldsRes.data as any).fields.length > 0) {
+          setField((fieldsRes.data as any).fields[0]);
         }
         
         const sensorsRes = await apiClient.getSensors();
-        if (sensorsRes.data && sensorsRes.data.length > 0) {
-          // setSensors(sensorsRes.data);
+        if (sensorsRes.data && (sensorsRes.data as any).sensors && (sensorsRes.data as any).sensors.length > 0) {
+          setSensors((sensorsRes.data as any).sensors);
         }
         
-        // Si no hay datos reales todavia, mantenemos los MOCKS
+        const fieldZonesRes = await apiClient.getFieldZones("field-001");
+        if (fieldZonesRes.data && (fieldZonesRes.data as any).zones && (fieldZonesRes.data as any).zones.length > 0) {
+           setZones((fieldZonesRes.data as any).zones);
+        }
+        
       } catch (error) {
         console.error("Error al conectar con la API:", error);
       }
     };
     
     fetchData();
+  }, []);
+
+  // 🌱 Cargar calendario fenológico y actualizar Kc dinámico
+  useEffect(() => {
+    const loadPhenologyData = async () => {
+      try {
+        console.log('[Phenology] Loading crop calendar data...');
+        const phenologyMap = await phenologyService.getMapVisualizationData();
+        
+        // Actualizar zonas con datos fenológicos
+        setZones(prevZones => 
+          prevZones.map(zone => {
+            const phenology = phenologyMap.get(zone.id);
+            if (phenology) {
+              console.log(`[Phenology] Updated ${zone.id}: Kc=${phenology.kc}, Stage=${phenology.stage_name}`);
+              return {
+                ...zone,
+                kc: phenology.kc,
+                cropName: phenology.crop_name,
+                cropStage: phenology.current_stage,
+                plantingDate: phenology.planting_date,
+                floweringDate: phenology.flowering_date,
+                harvestDate: phenology.harvest_date
+              };
+            }
+            return zone;
+          })
+        );
+        
+        console.log('[Phenology] ✓ Crop calendar loaded successfully');
+      } catch (error) {
+        console.warn('[Phenology] Failed to load crop calendar:', error);
+        // No es crítico, la app puede funcionar sin esto
+      }
+    };
+    
+    // Cargar al inicio
+    loadPhenologyData();
+    
+    // Actualizar cada 24 horas (datos fenológicos cambian lentamente)
+    const interval = setInterval(loadPhenologyData, 24 * 60 * 60 * 1000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // UI & Global Session States
@@ -373,6 +421,10 @@ export default function App() {
                 activeRole={activeRole}
                 onRoleChange={setActiveRole}
               />
+            )}
+
+            {activeTab === 'calendar' && (
+              <CropCalendarView zones={zones} />
             )}
 
             {activeTab === 'codebase' && (

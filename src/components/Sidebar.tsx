@@ -7,6 +7,7 @@ import {
   Droplet,
   ShieldCheck,
   RefreshCw,
+  Calendar,
   X,
   ChevronRight
 } from 'lucide-react';
@@ -39,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'what-if', label: t('sidebar.navItems.whatIf'), icon: Sliders, description: t('sidebar.navItems.whatIfDesc') },
     { id: 'reports', label: t('sidebar.navItems.reports'), icon: Droplet, description: t('sidebar.navItems.reportsDesc') },
     { id: 'rbac-audit', label: t('sidebar.navItems.rbacAudit'), icon: ShieldCheck, description: t('sidebar.navItems.rbacAuditDesc') },
+    { id: 'calendar', label: t('sidebar.navItems.calendar'), icon: Calendar, description: t('sidebar.navItems.calendarDesc') },
     { id: 'codebase', label: t('sidebar.navItems.codebase'), icon: RefreshCw, description: t('sidebar.navItems.codebaseDesc') }
   ];
 

@@ -18,6 +18,10 @@ class APIClient {
     this.baseURL = baseURL;
   }
 
+  public getFullUrl(endpoint: string): string {
+    return `${this.baseURL}${endpoint}`;
+  }
+
   private async request<T>(
     method: string,
     endpoint: string,

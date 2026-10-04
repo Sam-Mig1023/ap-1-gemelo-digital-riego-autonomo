@@ -149,6 +149,7 @@ export function calculateEtc(
 
 /**
  * Run What-If Simulation multi-day forward horizon
+ * Now supports dynamic Kc from phenology service
  */
 export function runWhatIfScenario(
   zone: ManagementZone,
@@ -169,7 +170,8 @@ export function runWhatIfScenario(
     const dailyRainMm = baseRainMm * input.forecastRainFactor;
     
     const baseEt0 = 5.2 + (input.heatWaveScenarioDegC * 0.3);
-    const kc = 1.15; // corn flowering
+    // ✨ Dynamic Kc from phenology service (replaces hardcoded value)
+    const kc = zone.kc !== undefined ? zone.kc : 1.15; // use dynamic kc or fallback
     
     const { etcMmDay, ksWaterStressCoeff } = calculateEtc(
       baseEt0,

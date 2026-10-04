@@ -39,6 +39,12 @@ export interface ManagementZone {
   appliedRateMm: number;       // Last applied mm
   hydraulicEfficiency: number; // e.g. 0.88 (88%)
   status: 'optimal' | 'mild_stress' | 'severe_stress' | 'over_irrigated';
+  cropName?: string;
+  cropStage?: string | CropStage;
+  kc?: number;
+  plantingDate?: string;
+  floweringDate?: string;
+  harvestDate?: string;
 }
 
 export interface AgriculturalField {

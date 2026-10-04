@@ -8,12 +8,13 @@ from pathlib import Path
 import os
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+from langchain.schema import Document
 
 
 class RAGService:
@@ -86,12 +87,26 @@ class RAGService:
     
     def _load_documents(self) -> List:
         """Load all markdown documents from knowledge base"""
-        loader = DirectoryLoader(
-            str(self.knowledge_base_path),
-            glob="**/*.md",
-            show_progress=True
-        )
-        return loader.load()
+        documents = []
+        kb_path = self.knowledge_base_path
+        
+        # Cargar todos los archivos .md
+        for md_file in kb_path.glob("**/*.md"):
+            try:
+                with open(md_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    # Crear documento con metadata
+                    doc = Document(
+                        page_content=content,
+                        metadata={"source": str(md_file)}
+                    )
+                    documents.append(doc)
+                    print(f"[OK] Loaded: {md_file.name}")
+            except Exception as e:
+                print(f"[WARN] Error loading {md_file.name}: {e}")
+        
+        print(f"\n[INFO] Total documents loaded: {len(documents)}")
+        return documents
     
     def _split_documents(self, documents: List) -> List:
         """Split documents into manageable chunks with overlap"""

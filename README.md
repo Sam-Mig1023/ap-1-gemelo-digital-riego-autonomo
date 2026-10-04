@@ -18,9 +18,22 @@
 Sistema inteligente de riego variable (VRI) que combina:
 - 🤖 **Agente RL (PPO)**: Aprendizaje por refuerzo para optimizar riego
 - 📊 **Gemelo Digital**: Simulación de dinámica hídrica del suelo
+- 🌱 **Calendario Fenológico AI**: LangChain agent con cálculo automático de Kc dinámico
 - 🌡️ **Multi-sensor**: Humedad, temperatura dosel, radar meteorológico
 - 🎯 **Closed-Loop**: Retroalimentación automática y ajustes en tiempo real
+- 💬 **RAG Chatbot**: Asistente agronómico con conocimiento especializado
 - 📱 **Dashboard Web**: Interfaz React con visualización GIS interactiva
+
+### ✨ Nuevo: Sistema de Calendario Fenológico con IA
+
+El sistema ahora incluye un **agente LangChain** que:
+- ✅ Calcula automáticamente la etapa fenológica de cada zona
+- ✅ Ajusta dinámicamente el coeficiente Kc según FAO-56
+- ✅ Genera recomendaciones de riego con razonamiento explicable
+- ✅ Integra RAG para consultar conocimiento agronómico
+- ✅ Utiliza 5 herramientas especializadas (ReAct pattern)
+
+📖 **[Ver documentación completa](./CALENDARIO_FENOLOGICO_AI.md)**
 
 ---
 

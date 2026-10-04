@@ -105,7 +105,7 @@ export function buildAgronomicSystemPrompt(
   const totalEnergySaved = field.energySavedKwhSeason.toLocaleString();
   
   const zonesSummary = zones.map(z => {
-    return `- ${z.name}: Textura ${z.soilTexture}, Humedad 10cm: ${z.currentMoisture10cm}%, 30cm: ${z.currentMoisture30cm}%, Temp Dosel: ${z.currentCanopyTemp}°C, CWSI: ${z.cwsi} (${z.status}), Ksat: ${z.saturatedK} mm/h, Dosis recomendada RL: ${z.recommendedRateMm} mm.`;
+    return `- ${z.name}: Cultivo ${z.cropName || field.cropName} (Fase: ${z.cropStage || 'Desconocida'}, Kc: ${z.kc || field.kcFactor}), Textura ${z.soilTexture}, Humedad 10cm: ${z.currentMoisture10cm}%, 30cm: ${z.currentMoisture30cm}%, Temp Dosel: ${z.currentCanopyTemp}°C, CWSI: ${z.cwsi} (${z.status}), Ksat: ${z.saturatedK} mm/h, Dosis recomendada RL: ${z.recommendedRateMm} mm.`;
   }).join('\n');
 
   const decisionsSummary = decisions.map(d => {

@@ -12,7 +12,9 @@ import {
   AlertTriangle,
   Play,
   RotateCw,
-  Info
+  Info,
+  Sprout,
+  Brain
 } from 'lucide-react';
 import { 
   AgriculturalField, 
@@ -22,6 +24,7 @@ import {
   RLDecision 
 } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { PhenologyPanel } from './PhenologyPanel';
 
 interface FieldGISMapProps {
   field: AgriculturalField;
@@ -53,6 +56,7 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
   const [pivotAngle, setPivotAngle] = useState<number>(45);
   const [isPivotRotating, setIsPivotRotating] = useState<boolean>(true);
   const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
+  const [showPhenologyPanel, setShowPhenologyPanel] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isPivotRotating) return;
@@ -381,6 +385,14 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                         area: selectedZone.areaHectares
                       })}
                     </p>
+                    {selectedZone.cropStage && (
+                      <div className="mt-1 flex gap-2 text-[11px]">
+                        <span className="font-medium text-emerald-600 dark:text-emerald-400">🌱 {selectedZone.cropName}</span>
+                        <span className="text-slate-500">|</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">Fase: {selectedZone.cropStage}</span>
+                        {selectedZone.kc && <span className="text-slate-500">(Kc: {selectedZone.kc})</span>}
+                      </div>
+                    )}
                   </div>
                   <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${
                     selectedZone.status === 'severe_stress'
@@ -394,6 +406,40 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                      t('gisMap.status.optimal')}
                   </span>
                 </div>
+                
+                {/* Crop Calendar Timeline */}
+                {selectedZone.plantingDate && selectedZone.harvestDate && (
+                  <div className="space-y-1 bg-white dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 mb-1">
+                      <span>Siembra: {selectedZone.plantingDate}</span>
+                      <span>Cosecha: {selectedZone.harvestDate}</span>
+                    </div>
+                    
+                    <div className="relative w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full mt-2">
+                       {/* Calculate progress percentage safely */}
+                       {(() => {
+                          try {
+                            const start = new Date(selectedZone.plantingDate).getTime();
+                            const end = new Date(selectedZone.harvestDate).getTime();
+                            const today = new Date().getTime();
+                            const progress = Math.max(0, Math.min(100, ((today - start) / (end - start)) * 100));
+                            const flow = selectedZone.floweringDate ? new Date(selectedZone.floweringDate).getTime() : 0;
+                            const flowPct = flow ? Math.max(0, Math.min(100, ((flow - start) / (end - start)) * 100)) : 50;
+                            
+                            return (
+                              <>
+                                <div className="absolute top-0 left-0 h-full bg-emerald-500 rounded-full" style={{ width: `${progress}%` }}></div>
+                                <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-emerald-600 rounded-full shadow-sm" style={{ left: `calc(${progress}% - 6px)` }}></div>
+                                {/* Marker for flowering */}
+                                <div className="absolute top-3 w-px h-2 bg-amber-400" style={{ left: `${flowPct}%` }}></div>
+                                <span className="absolute top-5 text-[9px] text-amber-500 font-medium -translate-x-1/2" style={{ left: `${flowPct}%` }}>Floración</span>
+                              </>
+                            );
+                          } catch(e) { return null; }
+                       })()}
+                    </div>
+                  </div>
+                )}
 
                 {/* Soil Profile Multi-depth Readout */}
                 <div className="space-y-2 bg-white dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
@@ -475,6 +521,27 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
                   </button>
                 </div>
 
+                {/* Phenology AI Button */}
+                {selectedZone.cropName && (
+                  <button
+                    onClick={() => setShowPhenologyPanel(!showPhenologyPanel)}
+                    className="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-md"
+                  >
+                    {showPhenologyPanel ? (
+                      <>
+                        <Eye className="w-4 h-4" />
+                        <span>Ocultar Análisis Fenológico AI</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sprout className="w-4 h-4" />
+                        <Brain className="w-4 h-4" />
+                        <span>Ver Análisis Fenológico AI 🤖</span>
+                      </>
+                    )}
+                  </button>
+                )}
+
               </div>
             ) : (
               <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-xl border border-slate-200 dark:border-slate-800 text-center space-y-2 shadow-sm">
@@ -488,6 +555,18 @@ export const FieldGISMap: React.FC<FieldGISMapProps> = ({
         </div>
 
       </div>
+
+      {/* Phenology AI Panel - Modal Overlay */}
+      {showPhenologyPanel && selectedZone && selectedZone.cropName && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <PhenologyPanel 
+              zone={selectedZone} 
+              onClose={() => setShowPhenologyPanel(false)}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );
