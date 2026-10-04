@@ -6,3 +6,19 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Archivos de artículos académicos
+*.docx
+~$*.docx
+figuras_tablas_articulo/
+resultados_experimentales/
+*ARTICULO*.md
+*_ARTICULO_*.md
+ANALISIS_RESULTADOS*.md
+PRUEBAS_ESTADISTICAS*.md
+TEXTOS_CORREGIDOS*.md
+PAQUETE_ENTREGA*.md
+CHECKLIST_ENVIO*.md
+REQUISITOS_CHILEAN_JAR*.md
+RESUMEN_EJECUTIVO*.md
+REVISTAS_*.md
