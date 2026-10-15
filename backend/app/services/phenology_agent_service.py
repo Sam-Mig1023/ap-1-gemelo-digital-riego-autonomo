@@ -86,11 +86,11 @@ class PhenologyAgentService:
     def __init__(
         self,
         groq_api_key: Optional[str] = None,
-        groq_model: str = "llama-3.3-70b-versatile"
+        groq_model: Optional[str] = None
     ):
         self.groq_api_key = groq_api_key or os.getenv("GROQ_API_KEY")
-        self.groq_model = groq_model
-        self.csv_path = Path("backend/data/crop_calendar.csv")
+        self.groq_model = groq_model or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+        self.csv_path = Path(__file__).resolve().parents[2] / "data" / "crop_calendar.csv"
         
         # Initialize LLM
         self.llm = ChatGroq(
@@ -255,6 +255,12 @@ Pregunta: {input}
     
     def _calculate_phenology_raw(self, zone_id: str) -> PhenologyCalculation:
         """Raw calculation of phenological stage"""
+        if not self.csv_path.is_file():
+            raise FileNotFoundError(
+                f"Crop calendar not configured: expected {self.csv_path}. "
+                "Add crop_calendar.csv with verified dates to enable phenology analysis."
+            )
+
         # Load CSV data
         entries = []
         with open(self.csv_path, 'r', encoding='utf-8') as f:

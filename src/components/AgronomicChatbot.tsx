@@ -281,10 +281,11 @@ export const AgronomicChatbot: React.FC<AgronomicChatbotProps> = ({
     
     // Fallback to direct Groq call (already implemented)
     const systemPrompt = buildAgronomicSystemPrompt(field, zones, decisions, sensors, radarCells);
-    const groqMessages = [...messages, {role: 'user', content: query}].map(m => ({
+    const groqMessages: Array<{ role: ChatMessage['role']; content: string }> = messages.map(m => ({
       role: m.role,
       content: m.content
     }));
+    groqMessages.push({ role: 'user', content: query });
     
     const answer = await queryGroqChat(groqMessages, systemPrompt, apiKey, selectedModel);
     return { answer, sources: undefined };

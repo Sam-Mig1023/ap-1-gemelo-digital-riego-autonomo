@@ -3,6 +3,7 @@ Chat endpoint for RAG-powered agronomic assistant
 """
 
 from fastapi import APIRouter, HTTPException, status
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
 
@@ -41,9 +42,10 @@ async def chat(request: ChatRequest):
     """
     try:
         rag_service = get_rag_service()
-        result = rag_service.query(
-            question=request.question,
-            language=request.language
+        result = await run_in_threadpool(
+            rag_service.query,
+            request.question,
+            request.language,
         )
         return ChatResponse(**result)
     
@@ -59,14 +61,9 @@ async def chat_health():
     """Health check for RAG service"""
     try:
         rag_service = get_rag_service()
-        health = rag_service.health_check()
-        
-        if not health["initialized"]:
-            # Try to initialize
-            rag_service.initialize()
-            health = rag_service.health_check()
-        
-        return health
+        # Health checks must stay lightweight. Model/embedding initialization
+        # happens on the first chat request, not while checking service status.
+        return rag_service.health_check()
     
     except Exception as e:
         raise HTTPException(

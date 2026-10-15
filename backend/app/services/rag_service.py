@@ -25,15 +25,32 @@ class RAGService:
     
     def __init__(
         self,
-        knowledge_base_path: str = "backend/data/knowledge_base",
+        knowledge_base_path: Optional[str] = None,
         embedding_model: str = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
         groq_api_key: Optional[str] = None,
-        groq_model: str = "llama-3.3-70b-versatile"
+        groq_model: Optional[str] = None
     ):
-        self.knowledge_base_path = Path(knowledge_base_path)
+        backend_root = Path(__file__).resolve().parents[2]
+        configured_path = knowledge_base_path or os.getenv("KNOWLEDGE_BASE_PATH")
+        if configured_path:
+            requested_path = Path(configured_path).expanduser()
+            if requested_path.is_absolute():
+                self.knowledge_base_path = requested_path.resolve()
+            else:
+                candidates = (
+                    Path.cwd() / requested_path,
+                    backend_root / requested_path,
+                    backend_root.parent / requested_path,
+                )
+                self.knowledge_base_path = next(
+                    (candidate.resolve() for candidate in candidates if candidate.is_dir()),
+                    (backend_root / requested_path).resolve(),
+                )
+        else:
+            self.knowledge_base_path = backend_root / "data" / "knowledge_base"
         self.embedding_model_name = embedding_model
         self.groq_api_key = groq_api_key or os.getenv("GROQ_API_KEY")
-        self.groq_model = groq_model
+        self.groq_model = groq_model or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
         
         self.embeddings = None
         self.vectorstore = None
@@ -47,6 +64,15 @@ class RAGService:
         
         # 1. Load documents
         documents = self._load_documents()
+        if not documents:
+            raise RuntimeError(
+                f"No Markdown documents found in the RAG knowledge base: {self.knowledge_base_path}"
+            )
+
+        if not self.groq_api_key:
+            raise RuntimeError(
+                "GROQ_API_KEY is not configured. Add a valid Groq API key to backend/.env to enable RAG chat."
+            )
         
         # 2. Split into chunks
         chunks = self._split_documents(documents)
@@ -89,6 +115,9 @@ class RAGService:
         """Load all markdown documents from knowledge base"""
         documents = []
         kb_path = self.knowledge_base_path
+
+        if not kb_path.is_dir():
+            raise FileNotFoundError(f"RAG knowledge base directory does not exist: {kb_path}")
         
         # Cargar todos los archivos .md
         for md_file in kb_path.glob("**/*.md"):

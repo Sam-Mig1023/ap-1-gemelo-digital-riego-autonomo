@@ -68,15 +68,21 @@ def load_crop_calendar() -> List[CropCalendarEntry]:
         '..', '..', '..', '..', 'data', 'crop_calendar.csv'
     )
     
-    entries = []
+    if not os.path.isfile(csv_path):
+        # Calendar dates are optional until verified agronomic data is provided.
+        # Returning an empty list keeps the rest of the API usable without
+        # inventing planting, flowering, or harvest dates.
+        return []
+
     try:
+        entries = []
         with open(csv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 entries.append(CropCalendarEntry(**row))
-    except FileNotFoundError:
-        raise HTTPException(status_code=500, detail=f"Crop calendar file not found: {csv_path}")
-    
+    except (OSError, csv.Error, ValueError) as exc:
+        raise HTTPException(status_code=500, detail=f"Could not read crop calendar: {exc}") from exc
+
     return entries
 
 def calculate_stage_from_dates(
@@ -219,8 +225,10 @@ async def get_ai_phenology_analysis(zone_id: str):
             "success": True,
             "data": result,
             "agent_type": "LangChain ReAct Agent",
-            "model": "llama-3.3-70b-versatile"
+            "model": agent_service.groq_model
         }
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -261,6 +269,8 @@ async def get_ai_irrigation_recommendation(
             "recommendation": recommendation.dict(),
             "method": "LangChain LLM Chain + FAO-56"
         }
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

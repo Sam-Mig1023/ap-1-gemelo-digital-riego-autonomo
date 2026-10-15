@@ -84,18 +84,6 @@ section[data-testid="stSidebar"] label {
     max-width: 1200px;
 }
 
-/* Tarjetas de modulo */
-.module-card {
-    background: #ffffff;
-    border: 1px solid #e0e8f0;
-    border-left: 4px solid #2196f3;
-    border-radius: 12px;
-    padding: 28px 32px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 16px rgba(0,60,130,0.08);
-    color: #1a2740;
-}
-
 /* Titulos */
 h1 { color: #0d47a1 !important; font-weight: 700; }
 h2, h3 { color: #1565c0 !important; }
@@ -144,6 +132,8 @@ with st.sidebar:
         "RAG Chat",
         "Gemelo Digital 3D",
         "Mantenimiento",
+        "CRISP-DM - Datos",
+        "CRISP-DM - Modelado",
         "Analisis Predictivo",
         "Motor IA",
         "Documentacion Scrum",
@@ -153,6 +143,8 @@ with st.sidebar:
         "RAG Chat": "🤖",
         "Gemelo Digital 3D": "🛰️",
         "Mantenimiento": "🔧",
+        "CRISP-DM - Datos": "🧪",
+        "CRISP-DM - Modelado": "🧠",
         "Analisis Predictivo": "📈",
         "Motor IA": "🤖",
         "Documentacion Scrum": "📚",
@@ -186,8 +178,6 @@ st.markdown("---")
 # DASHBOARD
 # ═══════════════════════════════════════════════════════════════════════════════
 if selected == "Dashboard":
-    st.markdown("<div class='module-card'>", unsafe_allow_html=True)
-
     health = call_api("GET", "health")
     is_healthy = health.get("status") == "healthy"
 
@@ -250,9 +240,6 @@ if selected == "Dashboard":
         col_c.metric("Caudal total (L/h)", "248")
         col_d.metric("Uptime API", "99.8%")
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # RAG CHAT - ASISTENTE AGRONÓMICO
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -269,7 +256,6 @@ elif selected == "RAG Chat":
 # GEMELO DIGITAL 3D
 # ═══════════════════════════════════════════════════════════════════════════════
 elif selected == "Gemelo Digital 3D":
-    st.markdown("<div class='module-card'>", unsafe_allow_html=True)
     st.markdown("Vista 3D interactiva del sistema de riego autonomo. **Arrastra para rotar | Scroll para zoom.**")
 
     import streamlit.components.v1 as components
@@ -531,14 +517,10 @@ elif selected == "Gemelo Digital 3D":
         col3.metric("Bomba", "ON")
         col4.metric("Flujo (L/h)", "248")
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # MANTENIMIENTO
 # ═══════════════════════════════════════════════════════════════════════════════
 elif selected == "Mantenimiento":
-    st.markdown("<div class='module-card'>", unsafe_allow_html=True)
     st.markdown("Gestion y seguimiento de tareas de mantenimiento del sistema.")
 
     tasks = call_api("GET", "maintenance")
@@ -564,14 +546,24 @@ elif selected == "Mantenimiento":
         except Exception:
             st.write("Instala pandas: pip install pandas")
 
-    st.markdown("</div>", unsafe_allow_html=True)
+# ═══════════════════════════════════════════════════════════════════════════════
+# CRISP-DM · COMPRENSIÓN DEL NEGOCIO Y DE LOS DATOS
+# ═══════════════════════════════════════════════════════════════════════════════
+elif selected == "CRISP-DM - Datos":
+    from streamlit_modules.crisp_dm_data import render_crisp_dm_data
+
+    render_crisp_dm_data()
+
+elif selected == "CRISP-DM - Modelado":
+    from streamlit_modules.crisp_dm_modeling import render_crisp_dm_modeling
+
+    render_crisp_dm_modeling()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ANALISIS PREDICTIVO
 # ═══════════════════════════════════════════════════════════════════════════════
 elif selected == "Analisis Predictivo":
-    st.markdown("<div class='module-card'>", unsafe_allow_html=True)
     st.markdown("Predicciones y tendencias del sistema de riego autonomo.")
 
     try:
@@ -580,19 +572,23 @@ elif selected == "Analisis Predictivo":
 
         data = call_api("GET", "analytics")
         if "error" not in data and isinstance(data, dict):
-            df = pd.DataFrame(data)
+            df = pd.DataFrame({key: value for key, value in data.items() if key != "zona"})
+            if "fecha_hora" in df.columns:
+                df["fecha_hora"] = pd.to_datetime(df["fecha_hora"], errors="coerce")
+                df["hora"] = df["fecha_hora"].dt.strftime("%m-%d %H:%M")
         else:
             st.info("Endpoint /analytics no disponible. Mostrando datos de ejemplo.")
             df = pd.DataFrame({
-                "hora": list(range(24)),
+                "hora": [f"{hour:02d}:00" for hour in range(24)],
                 "humedad": [70,68,65,63,60,58,57,60,65,70,72,68,
                             65,63,61,60,62,65,68,72,74,73,71,70],
-                "caudal": [2.1,2.0,2.2,2.3,2.1,2.0,1.9,2.0,2.2,2.4,
-                            2.5,2.3,2.1,2.0,2.0,2.1,2.2,2.3,2.4,2.5,
-                            2.4,2.3,2.2,2.1],
+                "volumen_agua_4h": [0.0] * 24,
             })
 
-        tab1, tab2 = st.tabs(["Humedad del suelo", "Caudal de riego"])
+        if "volumen_agua_4h" not in df.columns:
+            raise ValueError("La API no devolvió la serie de volumen de agua esperada.")
+
+        tab1, tab2 = st.tabs(["Humedad del suelo", "Volumen de agua"])
         with tab1:
             chart1 = alt.Chart(df).mark_area(
                 color=alt.Gradient(
@@ -606,34 +602,30 @@ elif selected == "Analisis Predictivo":
                 line={"color": "#1976d2"},
                 opacity=0.6
             ).encode(
-                x=alt.X("hora:Q", title="Hora del dia"),
-                y=alt.Y("humedad:Q", title="Humedad suelo (%)", scale=alt.Scale(domain=[50,80])),
+                x=alt.X("hora:N", title="Fecha y hora"),
+                y=alt.Y("humedad:Q", title="Humedad suelo (%)", scale=alt.Scale(zero=False)),
                 tooltip=["hora", "humedad"]
-            ).properties(title="Humedad del suelo - ultimas 24h", height=300)
+            ).properties(title=f"Humedad del suelo - últimos registros ({data.get('zona', 'datos de ejemplo')})", height=300)
             st.altair_chart(chart1, use_container_width=True)
 
         with tab2:
             chart2 = alt.Chart(df).mark_line(
                 color="#43a047", strokeWidth=3, point=True
             ).encode(
-                x=alt.X("hora:Q", title="Hora del dia"),
-                y=alt.Y("caudal:Q", title="Caudal (L/h)", scale=alt.Scale(domain=[1.5,3.0])),
-                tooltip=["hora", "caudal"]
-            ).properties(title="Caudal de riego - ultimas 24h", height=300)
+                x=alt.X("hora:N", title="Fecha y hora"),
+                y=alt.Y("volumen_agua_4h:Q", title="Volumen registrado en 4 h (unidad del dataset)"),
+                tooltip=["hora", "volumen_agua_4h"]
+            ).properties(title="Volumen de agua registrado - últimos 24 datos", height=300)
             st.altair_chart(chart2, use_container_width=True)
 
     except ImportError:
         st.error("Instala las dependencias: `pip install pandas altair`")
 
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # MOTOR IA
 # ═══════════════════════════════════════════════════════════════════════════════
 elif selected == "Motor IA":
-    st.markdown("<div class='module-card'>", unsafe_allow_html=True)
     st.markdown("Envia un prompt al motor de IA del backend (RAG + LangChain) y obtiene una respuesta.")
 
     if "chat_history" not in st.session_state:
@@ -677,15 +669,10 @@ elif selected == "Motor IA":
         st.session_state.chat_history = []
         st.rerun()
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # DOCUMENTACION SCRUM
 # ═══════════════════════════════════════════════════════════════════════════════
 elif selected == "Documentacion Scrum":
-    st.markdown("<div class='module-card'>", unsafe_allow_html=True)
-
     md_path = os.path.join(os.path.dirname(__file__), "..", "SCRUM.md")
     try:
         with open(md_path, "r", encoding="utf-8") as f:
@@ -710,10 +697,6 @@ elif selected == "Documentacion Scrum":
 - Modulo RL Agent
 - Exportar reportes PDF
 """)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
 # ── Footer ─────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.caption("Consola tecnica VRI Digital Twin  |  Frontend principal: React + Vite  |  API: FastAPI puerto 8000")

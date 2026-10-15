@@ -2,11 +2,17 @@
 Configuration settings for VRI Digital Twin API
 """
 import os
+from pathlib import Path
 from typing import List
+from dotenv import load_dotenv
+
+
+# Load the backend-local .env even when Uvicorn is started without --env-file.
+load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
 
 
 class Settings:
-    """Application settings - Simple config without external dependencies"""
+    """Application settings for the VRI API."""
     
     # API Settings
     API_TITLE: str = "VRI Digital Twin API"

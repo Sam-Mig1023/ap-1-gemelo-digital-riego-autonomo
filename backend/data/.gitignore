@@ -6,6 +6,7 @@
 
 # Excepto el archivo README.md con las instrucciones de descarga
 !README.md
+!crop_calendar.csv
 
 # Permitir carpetas necesarias para RAG
 !knowledge_base/

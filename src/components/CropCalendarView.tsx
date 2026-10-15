@@ -7,6 +7,8 @@ interface CropCalendarViewProps {
 }
 
 export const CropCalendarView: React.FC<CropCalendarViewProps> = ({ zones }) => {
+  const calendarZones = zones.filter((zone) => zone.plantingDate && zone.harvestDate);
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center gap-3 mb-6">
@@ -19,8 +21,16 @@ export const CropCalendarView: React.FC<CropCalendarViewProps> = ({ zones }) => 
         </div>
       </div>
 
+      {calendarZones.length === 0 ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-200">
+          El calendario fenológico no está disponible todavía porque faltan fechas
+          verificadas de siembra, floración y cosecha. El resto del sistema puede
+          seguir funcionando; esta vista se actualizará cuando se agreguen esos datos.
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {zones.map((zone) => {
+        {calendarZones.map((zone) => {
           if (!zone.plantingDate || !zone.harvestDate) return null;
           
           const start = new Date(zone.plantingDate).getTime();

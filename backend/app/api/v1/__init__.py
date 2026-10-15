@@ -2,7 +2,7 @@
 API v1 Router - Main entry point for all API endpoints
 """
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, fields, sensors, rl_engine, irrigation, reports, chat, dataset, crop_calendar, langflow_router
+from app.api.v1.endpoints import health, fields, sensors, rl_engine, irrigation, reports, chat, dataset, crop_calendar, langflow_router, maintenance, analytics
 
 # Create main API router
 api_router = APIRouter()
@@ -18,5 +18,7 @@ api_router.include_router(chat.router, tags=["Chat & RAG"])
 api_router.include_router(langflow_router.router, prefix="/langflow", tags=["Visual Flow Engine"])
 api_router.include_router(dataset.router, prefix="/dataset", tags=["Dataset Export"])
 api_router.include_router(crop_calendar.router, prefix="/crop-calendar", tags=["🌱 Crop Calendar & Phenology AI"])
+api_router.include_router(maintenance.router, prefix="/maintenance", tags=["Maintenance"])
+api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 
 __all__ = ["api_router"]

@@ -14,7 +14,9 @@ Backend service for the Closed-Loop Digital Twin for Autonomous Variable-Rate Ir
 1. Create virtual environment:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
+# Windows: venv\Scripts\activate
+# Powershell: .\venv\Scripts\Activate.ps1
 ```
 
 2. Install dependencies:

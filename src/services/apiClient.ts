@@ -197,7 +197,11 @@ class APIClient {
 
   // Chat & RAG Endpoints
   async chat(question: string, language: string = 'es') {
-    return this.request('/api/v1/chat', 'POST', { question, language });
+    return this.request<{ answer: string; sources?: unknown[] }>(
+      'POST',
+      '/api/v1/chat',
+      { question, language }
+    );
   }
 
   async getChatHealth() {
