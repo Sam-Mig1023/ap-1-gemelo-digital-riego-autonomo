@@ -1,0 +1,5 @@
+zona,cultivo,fecha_siembra,fecha_floracion_esperada,fecha_cosecha
+zone-1-nw,Tomate,2026-07-01,2026-08-15,2026-10-15
+zone-2-ne,Tomate,2026-07-01,2026-08-15,2026-10-15
+zone-3-sw,Calabacin,2026-07-15,2026-08-20,2026-09-30
+zone-4-se,Arandano,2026-01-01,2026-09-01,2026-11-30

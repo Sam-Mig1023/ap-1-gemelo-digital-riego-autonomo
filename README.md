@@ -1,4 +1,4 @@
-<div align="center">
+d<div align="center">
 
 # 🌾 VRI Digital Twin - Closed-Loop Autonomous Irrigation System
 
